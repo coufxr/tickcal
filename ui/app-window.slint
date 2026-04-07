@@ -1,124 +1,14 @@
-import { Button, VerticalBox, HorizontalBox } from "std-widgets.slint";
-
-
-export struct weekday_row  {
-    label: [string]
-}
-
-export struct calendar_day {
-    year: int, // 年份,用于处理跨年跨月点击
-    month: int, // 月份,区别跨月的情况
-    day: int,// 日期
-    is_today: bool, // 是否为今天
-    is_selected: bool, // 是否被选中
-    is_weekend: bool, // 是否为周末
-}
-
-export struct calendar_month {
-    year: int,
-    month: int,
-    days: [calendar_day]
-}
-
-component Calendar inherits Rectangle {
-    // 输入：当前月份结构体
-    in property <calendar_month> month_data;
-
-    // 星期标题数据
-    in property <weekday_row> weekdays;
-
-    // 回调函数
-    callback prev_month();
-    callback next_month();
-    callback go_today();
-    callback day_clicked(int, int, int);
-
-    // 颜色主题配置
-    private property <color> today_color: #007BFF;
-    private property <color> selected_color: #E6F0FF;
-    private property <color> today_border_color: #60A5FA;
-    VerticalLayout {
-        spacing: 8px;
-        padding: 12px;
-
-        HorizontalLayout {
-            spacing: 8px;
-            padding: 4px;
-
-            Text {
-                text: month_data.year + "年" + month_data.month + "月";
-                font-size: 24px;
-                font-weight: 600;
-                min-width: 140px;
-                vertical-alignment: center;
-            }
-
-            Button {
-                width: 40px;
-                height: 40px;
-                text: "▲";
-                clicked => {
-                    root.prev_month()
-                }
-            }
-
-            Button {
-                width: 40px;
-                height: 40px;
-                text: "▼";
-                clicked => {
-                    root.next_month()
-                }
-            }
-        }
-
-        GridLayout {
-            spacing: 2px;
-
-            for i in 7: Rectangle {
-                row: 0;
-                col: i;
-                height: 24px;
-                background: #F7F8FA;
-                border-radius: 4px;
-
-                Text {
-                    text: i < weekdays.label.length ? weekdays.label[i] : "";
-                    horizontal-alignment: center;
-                    vertical-alignment: center;
-                    font-weight: 500;
-                    color: #667085;
-                }
-            }
-
-            for day[idx] in month_data.days: Rectangle {
-                row: idx / 7 + 1;
-                col: Math.mod(idx, 7);
-                width: 44px;
-                height: 44px;
-                border-radius: 8px;
-                border-width: day.is_today ? 1px : 0px;
-                border-color: today_border_color;
-                background: day.is_today ? today_color : day.is_selected ? selected_color : transparent;
-
-                Text {
-                    text: day.day;
-                    horizontal-alignment: center;
-                    vertical-alignment: center;
-                    color: day.is_selected && !day.is_today ? #FFFFFF : day.month == month_data.month ? #101828 : #98A2B3;
-                }
-
-                TouchArea {
-                    clicked => {
-                        root.day_clicked(day.year, day.month, day.day);
-                    }
-                }
-            }
-        }
-    }
-}
+import { calendar_month, weekday_row } from "./types/calendar-types.slint";
+import { CalendarPage } from "./pages/calendar-page.slint";
+import { PlaceholderPage } from "./pages/placeholder-page.slint";
 
 export component AppWindow inherits Window {
+    title: "Calendar";
+    preferred-width: 1120px;
+    preferred-height: 760px;
+    min-width: 960px;
+    min-height: 640px;
+
     in-out property <calendar_month> month_data;
     in-out property <weekday_row> weekdays;
 
@@ -127,21 +17,31 @@ export component AppWindow inherits Window {
     callback go_today();
     callback day_clicked(int, int, int);
 
-    Calendar {
-        month_data: root.month_data;
-        weekdays: root.weekdays;
+    HorizontalLayout {
 
-        prev_month => {
-            root.prev_month();
+        CalendarPage {
+            min-width: 380px;
+            preferred-width: 380px;
+            max-width: 380px;
+            month_data: root.month_data;
+            weekdays: root.weekdays;
+
+            prev_month => { root.prev_month(); }
+            next_month => { root.next_month(); }
+            go_today => { root.go_today(); }
+            day_clicked(year, month, day) => { root.day_clicked(year, month, day); }
         }
-        next_month => {
-            root.next_month();
-        }
-        go_today => {
-            root.go_today();
-        }
-        day_clicked(year, month, day) => {
-            root.day_clicked(year, month, day);
+
+        Rectangle {
+            background: #F9FAFB;
+            border-color: #EAECF0;
+            border-width: 1px;
+            min-width: 320px;
+
+            PlaceholderPage {
+                title: "扩展页面";
+                description: "这里预留给后续功能页面，比如日程、设置、统计等。";
+            }
         }
     }
 }

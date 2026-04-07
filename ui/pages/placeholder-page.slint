@@ -1,0 +1,22 @@
+export component PlaceholderPage inherits Rectangle {
+    in property <string> title: "新页面";
+    in property <string> description: "页面开发中...";
+
+    VerticalLayout {
+        spacing: 10px;
+        padding: 20px;
+
+        Text {
+            text: title;
+            font-size: 24px;
+            font-weight: 600;
+            color: #101828;
+        }
+
+        Text {
+            text: description;
+            font-size: 14px;
+            color: #667085;
+        }
+    }
+}

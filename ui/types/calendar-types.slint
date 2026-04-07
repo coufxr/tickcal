@@ -1,0 +1,18 @@
+export struct weekday_row  {
+    label: [string]
+}
+
+export struct calendar_day {
+    year: int,
+    month: int,
+    day: int,
+    is_today: bool,
+    is_selected: bool,
+    is_weekend: bool,
+}
+
+export struct calendar_month {
+    year: int,
+    month: int,
+    days: [calendar_day]
+}
