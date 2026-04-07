@@ -6,6 +6,7 @@ export struct weekday_row  {
 }
 
 export struct calendar_day {
+    year: int, // 年份,用于处理跨年跨月点击
     month: int, // 月份,区别跨月的情况
     day: int,// 日期
     is_today: bool, // 是否为今天
@@ -30,7 +31,7 @@ component Calendar inherits Rectangle {
     callback prev_month();
     callback next_month();
     callback go_today();
-    callback day_clicked(int);
+    callback day_clicked(int, int, int);
 
     // 颜色主题配置
     private property <color> today_color: #007BFF;
@@ -109,7 +110,7 @@ component Calendar inherits Rectangle {
 
                 TouchArea {
                     clicked => {
-                        root.day_clicked(day.day);
+                        root.day_clicked(day.year, day.month, day.day);
                     }
                 }
             }
@@ -124,7 +125,7 @@ export component AppWindow inherits Window {
     callback prev_month();
     callback next_month();
     callback go_today();
-    callback day_clicked(int);
+    callback day_clicked(int, int, int);
 
     Calendar {
         month_data: root.month_data;
@@ -139,8 +140,8 @@ export component AppWindow inherits Window {
         go_today => {
             root.go_today();
         }
-        day_clicked(day) => {
-            root.day_clicked(day);
+        day_clicked(year, month, day) => {
+            root.day_clicked(year, month, day);
         }
     }
 }
