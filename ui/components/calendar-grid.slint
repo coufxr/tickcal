@@ -1,0 +1,55 @@
+import { calendar_month, weekday_row } from "../types/calendar-types.slint";
+import { CalendarHeader } from "./calendar-header.slint";
+
+export component CalendarGrid inherits Rectangle {
+    in property <calendar_month> month_data;
+    in property <weekday_row> weekdays;
+
+    callback day_clicked(int, int, int);
+
+    private property <color> today_color: #007BFF;
+    private property <color> selected_color: #E6F0FF;
+    private property <color> today_border_color: #60A5FA;
+
+    GridLayout {
+        spacing: 2px;
+
+        for i in 7: Rectangle {
+            row: 0;
+            col: i;
+            height: 24px;
+            background: #F7F8FA;
+            border-radius: 4px;
+
+            Text {
+                text: weekdays.label[i];
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                font-weight: 500;
+                color: i == 0 || i == 6 ? #EF4444 : #667085;
+            }
+        }
+
+        for day[idx] in month_data.days: Rectangle {
+            row: idx / 7 + 1;
+            col: Math.mod(idx, 7);
+            width: 46px;
+            height: 46px;
+            border-radius: 8px;
+            border-width: day.is_today ? 1px : 0px;
+            border-color: today_border_color;
+            background: day.is_today ? today_color : day.is_selected ? selected_color : transparent;
+
+            Text {
+                text: day.day;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                color: day.is_selected && !day.is_today ? #FFFFFF : day.month == month_data.month ? day.is_weekend ? #D92D20 : #101828 : #98A2B3;
+            }
+
+            TouchArea {
+                clicked => { root.day_clicked(day.year, day.month, day.day); }
+            }
+        }
+    }
+}

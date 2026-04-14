@@ -1,6 +1,5 @@
 import { calendar_month, weekday_row } from "./types/calendar-types.slint";
-import { CalendarPage } from "./pages/calendar-page.slint";
-import { PlaceholderPage } from "./pages/placeholder-page.slint";
+import { CalendarView } from "./components/calendar-view.slint";
 
 export component AppWindow inherits Window {
     title: "Calendar";
@@ -19,10 +18,7 @@ export component AppWindow inherits Window {
 
     HorizontalLayout {
 
-        CalendarPage {
-            min-width: 380px;
-            preferred-width: 380px;
-            max-width: 380px;
+        CalendarView {
             month_data: root.month_data;
             weekdays: root.weekdays;
 
@@ -38,9 +34,26 @@ export component AppWindow inherits Window {
             border-width: 1px;
             min-width: 320px;
 
-            PlaceholderPage {
-                title: "扩展页面";
-                description: "这里预留给后续功能页面，比如日程、设置、统计等。";
+            VerticalLayout {
+                alignment: center;
+
+                Rectangle {
+                    width: 200px;
+                    height: 200px;
+                    border-radius: 16px;
+                    background: white;
+                    border-width: 1px;
+                    border-color: #E5E7EB;
+
+                    Text {
+                        text: "扩展页面";
+                        font-size: 18px;
+                        font-weight: 500;
+                        color: #374151;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
             }
         }
     }
