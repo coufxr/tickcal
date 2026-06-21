@@ -7,6 +7,7 @@ export component AppWindow inherits Window {
     preferred-height: 760px;
     min-width: 960px;
     min-height: 640px;
+    background: #FFFFFF;
 
     in-out property <calendar_month> month_data;
     in-out property <weekday_row> weekdays;
@@ -18,40 +19,63 @@ export component AppWindow inherits Window {
 
     HorizontalLayout {
 
-        CalendarView {
-            month_data: root.month_data;
-            weekdays: root.weekdays;
+        // 左侧：日历区域（白色 Mica 背景）
+        Rectangle {
+            background: #FFFFFF;
+            horizontal-stretch: 1;
 
-            prev_month => { root.prev_month(); }
-            next_month => { root.next_month(); }
-            go_today => { root.go_today(); }
-            day_clicked(year, month, day) => { root.day_clicked(year, month, day); }
+            CalendarView {
+                month_data: root.month_data;
+                weekdays: root.weekdays;
+
+                prev_month => { root.prev_month(); }
+                next_month => { root.next_month(); }
+                go_today => { root.go_today(); }
+                day_clicked(year, month, day) => { root.day_clicked(year, month, day); }
+            }
         }
 
+        // 右侧：扩展区域（浅灰背景）
         Rectangle {
-            background: #F9FAFB;
-            border-color: #EAECF0;
+            background: #F5F5F5;
             border-width: 1px;
+            border-color: #E0E0E0;
             min-width: 320px;
+            horizontal-stretch: 0;
 
             VerticalLayout {
                 alignment: center;
+                padding: 24px;
 
+                // Fluent2 卡片风格
                 Rectangle {
-                    width: 200px;
-                    height: 200px;
-                    border-radius: 16px;
-                    background: white;
+                    border-radius: 8px;
+                    background: #FFFFFF;
                     border-width: 1px;
-                    border-color: #E5E7EB;
+                    border-color: #E0E0E0;
+                    height: 200px;
 
-                    Text {
-                        text: "扩展页面";
-                        font-size: 18px;
-                        font-weight: 500;
-                        color: #374151;
-                        horizontal-alignment: center;
-                        vertical-alignment: center;
+                    VerticalLayout {
+                        alignment: center;
+                        spacing: 8px;
+
+                        Text {
+                            text: "扩展页面";
+                            font-size: 18px;
+                            font-weight: 600;
+                            color: #242424;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+
+                        Text {
+                            text: "Fluent2 风格";
+                            font-size: 13px;
+                            font-weight: 400;
+                            color: #616161;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
                     }
                 }
             }

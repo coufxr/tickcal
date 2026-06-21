@@ -1,17 +1,20 @@
-import { Button } from "std-widgets.slint";
-
 export component WeekdayLabel inherits Rectangle {
     in property <string> text;
-    in property <bool> is-weekend: false;
+    in property <bool> is_weekend: false;
 
-    background: #F7F8FA;
+    private property <color> bg_color: #F5F5F5;
+    private property <color> text_normal: #616161;
+    private property <color> text_weekend: #D92D20;
+
     border-radius: 4px;
+    background: bg_color;
 
     Text {
         text: root.text;
         horizontal-alignment: center;
         vertical-alignment: center;
-        font-weight: 500;
-        color: root.is-weekend ? #EF4444 : #667085;
+        font-weight: 600;
+        font-size: 12px;
+        color: root.is_weekend ? text_weekend : text_normal;
     }
 }

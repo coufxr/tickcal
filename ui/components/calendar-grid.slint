@@ -1,5 +1,4 @@
 import { calendar_month, weekday_row } from "../types/calendar-types.slint";
-import { CalendarHeader } from "./calendar-header.slint";
 
 export component CalendarGrid inherits Rectangle {
     in property <calendar_month> month_data;
@@ -7,48 +6,83 @@ export component CalendarGrid inherits Rectangle {
 
     callback day_clicked(int, int, int);
 
-    private property <color> today_color: #007BFF;
-    private property <color> selected_color: #E6F0FF;
-    private property <color> today_border_color: #60A5FA;
+    private property <length> cell_size: 72px;
+    private property <length> gap: 6px;
+    private property <length> header_height: 40px;
+    private property <length> header_grid_gap: 8px;
+    private property <color> weekday_divider: #E0E0E0;
+    private property <color> weekday_text: #616161;
+    private property <color> weekday_weekend: #D92D20;
 
-    GridLayout {
-        spacing: 2px;
+    width: cell_size * 7 + gap * 6;
+    height: header_height + 1px + header_grid_gap + cell_size * 6 + gap * 7;
 
-        for i in 7: Rectangle {
-            row: 0;
-            col: i;
-            height: 24px;
-            background: #F7F8FA;
-            border-radius: 4px;
+    VerticalLayout {
+        spacing: 0px;
+        alignment: start;
 
-            Text {
+        // 星期标题行 (Fluent2 风格)
+        HorizontalLayout {
+            spacing: gap;
+            height: header_height;
+
+            for i in 7: Text {
+                horizontal-stretch: 1;
                 text: weekdays.label[i];
                 horizontal-alignment: center;
                 vertical-alignment: center;
-                font-weight: 500;
-                color: i == 0 || i == 6 ? #EF4444 : #667085;
+                font-weight: 600;
+                font-size: 13px;
+                color: i == 0 || i == 6 ? weekday_weekend : weekday_text;
             }
         }
 
-        for day[idx] in month_data.days: Rectangle {
-            row: idx / 7 + 1;
-            col: Math.mod(idx, 7);
-            width: 46px;
-            height: 46px;
-            border-radius: 8px;
-            border-width: day.is_today ? 1px : 0px;
-            border-color: today_border_color;
-            background: day.is_today ? today_color : day.is_selected ? selected_color : transparent;
+        // Fluent2 分割线
+        Rectangle {
+            height: 1px;
+            width: 100%;
+            background: weekday_divider;
+        }
 
-            Text {
-                text: day.day;
-                horizontal-alignment: center;
-                vertical-alignment: center;
-                color: day.is_selected && !day.is_today ? #FFFFFF : day.month == month_data.month ? day.is_weekend ? #D92D20 : #101828 : #98A2B3;
-            }
+        // 间距
+        Rectangle {
+            height: header_grid_gap;
+            background: transparent;
+        }
 
-            TouchArea {
-                clicked => { root.day_clicked(day.year, day.month, day.day); }
+        // 日期网格 (Win10 磁贴风格)
+        GridLayout {
+            spacing: gap;
+            width: cell_size * 7 + gap * 6;
+            height: cell_size * 6 + gap * 6;
+
+            for day[idx] in month_data.days: Rectangle {
+                row: idx / 7;
+                col: Math.mod(idx, 7);
+                width: cell_size;
+                height: cell_size;
+                border-radius: 4px;
+
+                background: day.is_today ? #0078D4
+                    : day.is_selected ? #CCE4F7
+                    : day.is_current_month ? #F2F2F2
+                    : transparent;
+
+                Text {
+                    text: day.day;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                    font-weight: day.is_today ? 700 : (day.is_current_month ? 600 : 400);
+                    font-size: 16px;
+                    color: day.is_today ? #FFFFFF
+                        : day.is_selected ? #0078D4
+                        : day.is_current_month ? (day.is_weekend ? #E81123 : #1B1B1B)
+                        : #ABABAB;
+                }
+
+                TouchArea {
+                    clicked => { root.day_clicked(day.year, day.month, day.day); }
+                }
             }
         }
     }

@@ -9,7 +9,7 @@ use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
 mod model;
 
 use crate::model::build_month_view;
-use model::{DayCell, Ymd, today_ymd};
+use model::{DayCell, Ymd, get_weekday_names, today_ymd};
 
 slint::include_modules!();
 
@@ -21,6 +21,7 @@ fn to_calendar_day(day: DayCell) -> calendar_day {
         is_today: day.is_today,
         is_selected: day.is_selected,
         is_weekend: day.is_weekend,
+        is_current_month: day.is_current_month,
     }
 }
 
@@ -43,16 +44,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     let ui = AppWindow::new()?;
     let today = today_ymd();
 
+    let weekdays = get_weekday_names();
     ui.set_weekdays(weekday_row {
-        label: ModelRc::new(VecModel::from(vec![
-            SharedString::from("日"),
-            SharedString::from("一"),
-            SharedString::from("二"),
-            SharedString::from("三"),
-            SharedString::from("四"),
-            SharedString::from("五"),
-            SharedString::from("六"),
-        ])),
+        label: ModelRc::new(VecModel::from(
+            weekdays
+                .iter()
+                .map(|s| SharedString::from(*s))
+                .collect::<Vec<_>>(),
+        )),
     });
 
     ui.set_month_data(build_month_vm((today.0, today.1), today, today));

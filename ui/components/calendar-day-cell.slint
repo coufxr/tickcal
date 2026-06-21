@@ -7,22 +7,31 @@ export component CalendarDayCell inherits Rectangle {
     in property <bool> is_current_month;
     in property <bool> is_weekend;
 
-    private property <color> today_color: #007BFF;
-    private property <color> selected_color: #E6F0FF;
-    private property <color> today_border_color: #60A5FA;
+    private property <color> accent_color: #0078D4;
+    private property <color> selected_bg: #CCE4F7;
+    private property <color> tile_normal: #F2F2F2;
+    private property <color> text_primary: #1B1B1B;
+    private property <color> text_on_accent: #FFFFFF;
+    private property <color> text_tertiary: #ABABAB;
+    private property <color> text_weekend: #E81123;
 
-    border-radius: 8px;
-    border-width: is_today ? 1px : 0px;
-    border-color: today_border_color;
-    background: is_today ? today_color : is_selected ? selected_color : transparent;
+    border-radius: 4px;
+
+    background: is_today ? accent_color
+        : is_selected ? selected_bg
+        : is_current_month ? tile_normal
+        : transparent;
 
     Text {
         text: root.day_num;
         horizontal-alignment: center;
         vertical-alignment: center;
-        color: is_selected && !is_today ? #FFFFFF
-            : is_current_month ? is_weekend ? #D92D20 : #101828
-            : #98A2B3;
+        font-weight: is_today ? 700 : (is_current_month ? 600 : 400);
+        font-size: 14px;
+        color: is_today ? text_on_accent
+            : is_selected ? accent_color
+            : is_current_month ? (is_weekend ? text_weekend : text_primary)
+            : text_tertiary;
     }
 
     TouchArea {

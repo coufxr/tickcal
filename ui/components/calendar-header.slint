@@ -1,5 +1,3 @@
-import { Button } from "std-widgets.slint";
-
 export component CalendarHeader inherits Rectangle {
     in property <int> year;
     in property <int> month;
@@ -8,38 +6,99 @@ export component CalendarHeader inherits Rectangle {
     callback next_month();
     callback go_today();
 
-    private property <length> content_width: 334px;
+    private property <color> text_primary: #1B1B1B;
+    private property <color> text_secondary: #616161;
+    private property <color> accent_color: #0078D4;
+    private property <color> btn_bg: #F2F2F2;
+    private property <color> btn_hover: #E5E5E5;
+
+    height: 56px;
 
     HorizontalLayout {
-        spacing: 8px;
-        padding: 4px;
-        min-width: root.content_width;
-        preferred-width: root.content_width;
-        max-width: root.content_width;
+        spacing: 12px;
+        alignment: space-between;
 
-        Text {
-            text: root.year + "年" + root.month + "月";
-            font-size: 24px;
-            font-weight: 600;
-            min-width: 150px;
-            vertical-alignment: center;
-            horizontal-stretch: 0;
+        // 左侧：年月标题
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+
+            Text {
+                text: root.year + "年" + root.month + "月";
+                font-size: 28px;
+                font-weight: 700;
+                color: text_primary;
+                vertical-alignment: center;
+            }
         }
 
-        Rectangle { horizontal-stretch: 1; }
+        // 右侧：导航按钮
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: end;
 
-        Button {
-            width: 38px;
-            height: 38px;
-            text: "▲";
-            clicked => { root.prev_month(); }
-        }
+            // 今天按钮
+            Rectangle {
+                width: 64px;
+                height: 36px;
+                border-radius: 4px;
+                background: btn_bg;
 
-        Button {
-            width: 38px;
-            height: 38px;
-            text: "▼";
-            clicked => { root.next_month(); }
+                Text {
+                    text: "今天";
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: accent_color;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+
+                TouchArea {
+                    clicked => { root.go_today(); }
+                }
+            }
+
+            // 上月按钮
+            Rectangle {
+                width: 36px;
+                height: 36px;
+                border-radius: 4px;
+                background: btn_bg;
+
+                Text {
+                    text: "<";
+                    font-size: 16px;
+                    font-weight: 700;
+                    color: text_secondary;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+
+                TouchArea {
+                    clicked => { root.prev_month(); }
+                }
+            }
+
+            // 下月按钮
+            Rectangle {
+                width: 36px;
+                height: 36px;
+                border-radius: 4px;
+                background: btn_bg;
+
+                Text {
+                    text: ">";
+                    font-size: 16px;
+                    font-weight: 700;
+                    color: text_secondary;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+
+                TouchArea {
+                    clicked => { root.next_month(); }
+                }
+            }
         }
     }
 }
