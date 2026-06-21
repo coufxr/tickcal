@@ -1,71 +1,63 @@
 import { calendar_month, weekday_row } from "../types/calendar-types.slint";
+import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
+import { CalendarSpacingConfig } from "../config/calendar-config.slint";
 
 export component CalendarGrid inherits Rectangle {
     in property <calendar_month> month_data;
     in property <weekday_row> weekdays;
+    in property <int> week_start_day;
 
     callback day_clicked(int, int, int);
 
-    private property <length> cell_size: 72px;
-    private property <length> gap: 6px;
-    private property <length> header_height: 40px;
-    private property <length> header_grid_gap: 8px;
-    private property <color> weekday_divider: #E0E0E0;
-    private property <color> weekday_text: #616161;
-    private property <color> weekday_weekend: #D92D20;
-
-    width: cell_size * 7 + gap * 6;
-    height: header_height + 1px + header_grid_gap + cell_size * 6 + gap * 7;
+    width: CalendarSpacingConfig.cell_size * 7 + CalendarSpacingConfig.gap * 6;
+    height: CalendarSpacingConfig.header_height + 1px + CalendarSpacingConfig.header_grid_gap + CalendarSpacingConfig.cell_size * 6 + CalendarSpacingConfig.gap * 7;
 
     VerticalLayout {
         spacing: 0px;
         alignment: start;
 
-        // 星期标题行 (Fluent2 风格)
         HorizontalLayout {
-            spacing: gap;
-            height: header_height;
+            spacing: CalendarSpacingConfig.gap;
+            height: CalendarSpacingConfig.header_height;
 
             for i in 7: Text {
+                property <int> actual_day: Math.mod(root.week_start_day + i, 7);
                 horizontal-stretch: 1;
                 text: weekdays.label[i];
                 horizontal-alignment: center;
                 vertical-alignment: center;
                 font-weight: 600;
                 font-size: 13px;
-                color: i == 0 || i == 6 ? weekday_weekend : weekday_text;
+                color: actual_day == 0 || actual_day == 6 ? Fluent2Palette.text_weekday_weekend : Fluent2Palette.text_secondary;
             }
         }
 
-        // Fluent2 分割线
         Rectangle {
             height: 1px;
             width: 100%;
-            background: weekday_divider;
+            background: Fluent2Palette.divider;
         }
 
-        // 间距
         Rectangle {
-            height: header_grid_gap;
+            height: CalendarSpacingConfig.header_grid_gap;
             background: transparent;
         }
 
-        // 日期网格 (Win10 磁贴风格)
         GridLayout {
-            spacing: gap;
-            width: cell_size * 7 + gap * 6;
-            height: cell_size * 6 + gap * 6;
+            spacing: CalendarSpacingConfig.gap;
+            width: CalendarSpacingConfig.cell_size * 7 + CalendarSpacingConfig.gap * 6;
+            height: CalendarSpacingConfig.cell_size * 6 + CalendarSpacingConfig.gap * 6;
 
             for day[idx] in month_data.days: Rectangle {
                 row: idx / 7;
                 col: Math.mod(idx, 7);
-                width: cell_size;
-                height: cell_size;
+                width: CalendarSpacingConfig.cell_size;
+                height: CalendarSpacingConfig.cell_size;
                 border-radius: 4px;
 
-                background: day.is_today ? #0078D4
-                    : day.is_selected ? #CCE4F7
-                    : day.is_current_month ? #F2F2F2
+                background: day.is_today ? Fluent2Palette.accent
+                    : day.is_selected ? Fluent2Palette.accent_light
+                    : day.is_current_month ? Fluent2Palette.surface_tile
                     : transparent;
 
                 Text {
@@ -74,10 +66,10 @@ export component CalendarGrid inherits Rectangle {
                     vertical-alignment: center;
                     font-weight: day.is_today ? 700 : (day.is_current_month ? 600 : 400);
                     font-size: 16px;
-                    color: day.is_today ? #FFFFFF
-                        : day.is_selected ? #0078D4
-                        : day.is_current_month ? (day.is_weekend ? #E81123 : #1B1B1B)
-                        : #ABABAB;
+                    color: day.is_today ? Fluent2Palette.text_on_accent
+                        : day.is_selected ? Fluent2Palette.accent
+                        : day.is_current_month ? (day.is_weekend ? Fluent2Palette.text_weekend : Fluent2Palette.text_primary)
+                        : Fluent2Palette.text_tertiary;
                 }
 
                 TouchArea {

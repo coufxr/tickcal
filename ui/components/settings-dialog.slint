@@ -1,0 +1,278 @@
+import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
+import { CalendarSpacingConfig, CalendarSettings } from "../config/calendar-config.slint";
+
+export component SettingsDialog inherits Rectangle {
+    in property <bool> is_open;
+
+    callback close();
+    callback week_start_changed(int);
+    callback accent_changed(int);
+    callback cell_size_changed(int);
+    callback dark_mode_changed(bool);
+
+    visible: is_open;
+
+    Rectangle {
+        background: Fluent2Palette.overlay;
+
+        TouchArea {
+            clicked => { root.close(); }
+        }
+    }
+
+    Rectangle {
+        width: 420px;
+        height: 480px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        background: Fluent2Palette.surface_card;
+        border-radius: 8px;
+        border-width: 1px;
+        border-color: Fluent2Palette.border_default;
+
+        VerticalLayout {
+            padding: 24px;
+            spacing: 20px;
+
+            HorizontalLayout {
+                alignment: space-between;
+
+                Text {
+                    text: "设置";
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: Fluent2Palette.text_primary;
+                }
+
+                Rectangle {
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 4px;
+                    background: close_btn.has-hover ? Fluent2Palette.btn_hover : Fluent2Palette.btn_bg;
+
+                    Text {
+                        text: "×";
+                        font-size: 20px;
+                        font-weight: 400;
+                        color: Fluent2Palette.text_secondary;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+
+                    close_btn := TouchArea {
+                        clicked => { root.close(); }
+                        mouse-cursor: pointer;
+                    }
+                }
+            }
+
+            VerticalLayout {
+                spacing: 8px;
+
+                Text {
+                    text: "外观模式";
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: Fluent2Palette.text_primary;
+                }
+
+                HorizontalLayout {
+                    spacing: 8px;
+
+                    Rectangle {
+                        width: 120px;
+                        height: 32px;
+                        border-radius: 4px;
+                        background: !Fluent2Palette.dark_mode ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
+
+                        Text {
+                            text: "浅色";
+                            color: !Fluent2Palette.dark_mode ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
+                            font-size: 13px;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+
+                        TouchArea {
+                            clicked => { root.dark_mode_changed(false); }
+                        }
+                    }
+
+                    Rectangle {
+                        width: 120px;
+                        height: 32px;
+                        border-radius: 4px;
+                        background: Fluent2Palette.dark_mode ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
+
+                        Text {
+                            text: "深色";
+                            color: Fluent2Palette.dark_mode ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
+                            font-size: 13px;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+
+                        TouchArea {
+                            clicked => { root.dark_mode_changed(true); }
+                        }
+                    }
+                }
+            }
+
+            VerticalLayout {
+                spacing: 8px;
+
+                Text {
+                    text: "每周起始日";
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: Fluent2Palette.text_primary;
+                }
+
+                HorizontalLayout {
+                    spacing: 8px;
+
+                    Rectangle {
+                        width: 120px;
+                        height: 32px;
+                        border-radius: 4px;
+                        background: CalendarSettings.week_start_day == 0 ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
+
+                        Text {
+                            text: "星期日";
+                            color: CalendarSettings.week_start_day == 0 ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
+                            font-size: 13px;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+
+                        TouchArea {
+                            clicked => { root.week_start_changed(0); }
+                        }
+                    }
+
+                    Rectangle {
+                        width: 120px;
+                        height: 32px;
+                        border-radius: 4px;
+                        background: CalendarSettings.week_start_day == 1 ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
+
+                        Text {
+                            text: "星期一";
+                            color: CalendarSettings.week_start_day == 1 ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
+                            font-size: 13px;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+
+                        TouchArea {
+                            clicked => { root.week_start_changed(1); }
+                        }
+                    }
+                }
+            }
+
+            VerticalLayout {
+                spacing: 8px;
+
+                Text {
+                    text: "主题色";
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: Fluent2Palette.text_primary;
+                }
+
+                for row in 2: HorizontalLayout {
+                    spacing: 12px;
+
+                    for col in 6: Rectangle {
+                        property <int> color_idx: row * 6 + col;
+                        visible: color_idx < Fluent2Palette.accent_colors.length;
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 14px;
+                        background: color_idx < Fluent2Palette.accent_colors.length ? Fluent2Palette.accent_colors[color_idx] : transparent;
+                        border-width: CalendarSettings.color_scheme_index == color_idx ? 3px : 0px;
+                        border-color: Fluent2Palette.text_primary;
+
+                        TouchArea {
+                            clicked => { if (color_idx < Fluent2Palette.accent_colors.length) { root.accent_changed(color_idx); } }
+                        }
+                    }
+                }
+            }
+
+            VerticalLayout {
+                spacing: 8px;
+
+                Text {
+                    text: "单元格大小";
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: Fluent2Palette.text_primary;
+                }
+
+                HorizontalLayout {
+                    spacing: 8px;
+
+                    Rectangle {
+                        width: 80px;
+                        height: 32px;
+                        border-radius: 4px;
+                        background: CalendarSettings.cell_size_index == 0 ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
+
+                        Text {
+                            text: "小";
+                            color: CalendarSettings.cell_size_index == 0 ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
+                            font-size: 13px;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+
+                        TouchArea {
+                            clicked => { root.cell_size_changed(0); }
+                        }
+                    }
+
+                    Rectangle {
+                        width: 80px;
+                        height: 32px;
+                        border-radius: 4px;
+                        background: CalendarSettings.cell_size_index == 1 ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
+
+                        Text {
+                            text: "中";
+                            color: CalendarSettings.cell_size_index == 1 ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
+                            font-size: 13px;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+
+                        TouchArea {
+                            clicked => { root.cell_size_changed(1); }
+                        }
+                    }
+
+                    Rectangle {
+                        width: 80px;
+                        height: 32px;
+                        border-radius: 4px;
+                        background: CalendarSettings.cell_size_index == 2 ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
+
+                        Text {
+                            text: "大";
+                            color: CalendarSettings.cell_size_index == 2 ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
+                            font-size: 13px;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+
+                        TouchArea {
+                            clicked => { root.cell_size_changed(2); }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

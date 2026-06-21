@@ -1,3 +1,5 @@
+import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
+
 export component CalendarDayCell inherits Rectangle {
     in property <int> year;
     in property <int> month;
@@ -7,19 +9,11 @@ export component CalendarDayCell inherits Rectangle {
     in property <bool> is_current_month;
     in property <bool> is_weekend;
 
-    private property <color> accent_color: #0078D4;
-    private property <color> selected_bg: #CCE4F7;
-    private property <color> tile_normal: #F2F2F2;
-    private property <color> text_primary: #1B1B1B;
-    private property <color> text_on_accent: #FFFFFF;
-    private property <color> text_tertiary: #ABABAB;
-    private property <color> text_weekend: #E81123;
-
     border-radius: 4px;
 
-    background: is_today ? accent_color
-        : is_selected ? selected_bg
-        : is_current_month ? tile_normal
+    background: is_today ? Fluent2Palette.accent
+        : is_selected ? Fluent2Palette.accent_light
+        : is_current_month ? Fluent2Palette.surface_tile
         : transparent;
 
     Text {
@@ -28,10 +22,10 @@ export component CalendarDayCell inherits Rectangle {
         vertical-alignment: center;
         font-weight: is_today ? 700 : (is_current_month ? 600 : 400);
         font-size: 14px;
-        color: is_today ? text_on_accent
-            : is_selected ? accent_color
-            : is_current_month ? (is_weekend ? text_weekend : text_primary)
-            : text_tertiary;
+        color: is_today ? Fluent2Palette.text_on_accent
+            : is_selected ? Fluent2Palette.accent
+            : is_current_month ? (is_weekend ? Fluent2Palette.text_weekend : Fluent2Palette.text_primary)
+            : Fluent2Palette.text_tertiary;
     }
 
     TouchArea {

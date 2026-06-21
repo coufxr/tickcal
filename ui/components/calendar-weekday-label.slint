@@ -1,13 +1,11 @@
+import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
+
 export component WeekdayLabel inherits Rectangle {
     in property <string> text;
     in property <bool> is_weekend: false;
 
-    private property <color> bg_color: #F5F5F5;
-    private property <color> text_normal: #616161;
-    private property <color> text_weekend: #D92D20;
-
     border-radius: 4px;
-    background: bg_color;
+    background: Fluent2Palette.surface_weekday_header;
 
     Text {
         text: root.text;
@@ -15,6 +13,6 @@ export component WeekdayLabel inherits Rectangle {
         vertical-alignment: center;
         font-weight: 600;
         font-size: 12px;
-        color: root.is_weekend ? text_weekend : text_normal;
+        color: root.is_weekend ? Fluent2Palette.text_weekday_weekend : Fluent2Palette.text_secondary;
     }
 }

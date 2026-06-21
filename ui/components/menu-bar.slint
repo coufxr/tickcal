@@ -1,0 +1,42 @@
+import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
+
+export component MenuBar inherits Rectangle {
+    callback open_settings();
+
+    height: 40px;
+    background: Fluent2Palette.surface_sidebar;
+
+    HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 16px;
+        alignment: space-between;
+
+        Text {
+            text: "日历";
+            font-size: 15px;
+            font-weight: 600;
+            color: Fluent2Palette.text_primary;
+            vertical-alignment: center;
+        }
+
+        Rectangle {
+            width: 72px;
+            height: 28px;
+            border-radius: 4px;
+            background: Fluent2Palette.surface_tile;
+
+            Text {
+                text: "设置";
+                font-size: 13px;
+                font-weight: 500;
+                color: Fluent2Palette.text_primary;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+
+            TouchArea {
+                clicked => { root.open_settings(); }
+            }
+        }
+    }
+}

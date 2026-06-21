@@ -25,8 +25,13 @@ fn to_calendar_day(day: DayCell) -> calendar_day {
     }
 }
 
-fn build_month_vm(display: (isize, usize), selected: Ymd, today: Ymd) -> calendar_month {
-    let month_view = build_month_view(display.0, display.1, selected, today);
+fn build_month_vm(
+    display: (isize, usize),
+    selected: Ymd,
+    today: Ymd,
+    week_start_day: usize,
+) -> calendar_month {
+    let month_view = build_month_view(display.0, display.1, selected, today, week_start_day);
     calendar_month {
         year: month_view.year as i32,
         month: month_view.month as i32,
@@ -40,11 +45,8 @@ fn build_month_vm(display: (isize, usize), selected: Ymd, today: Ymd) -> calenda
     }
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let ui = AppWindow::new()?;
-    let today = today_ymd();
-
-    let weekdays = get_weekday_names();
+fn set_weekdays_ui(ui: &AppWindow, start_day: usize) {
+    let weekdays = get_weekday_names(start_day);
     ui.set_weekdays(weekday_row {
         label: ModelRc::new(VecModel::from(
             weekdays
@@ -53,8 +55,14 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .collect::<Vec<_>>(),
         )),
     });
+}
 
-    ui.set_month_data(build_month_vm((today.0, today.1), today, today));
+fn main() -> Result<(), Box<dyn Error>> {
+    let ui = AppWindow::new()?;
+    let today = today_ymd();
+
+    set_weekdays_ui(&ui, 0);
+    ui.set_month_data(build_month_vm((today.0, today.1), today, today, 0));
 
     let vm = Rc::new(RefCell::new(CalendarState::new()));
 
@@ -67,6 +75,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 vm_ref.borrow().display(),
                 vm_ref.borrow().selected(),
                 vm_ref.borrow().today(),
+                vm_ref.borrow().week_start_day(),
             ));
         }
     });
@@ -80,6 +89,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 vm_ref.borrow().display(),
                 vm_ref.borrow().selected(),
                 vm_ref.borrow().today(),
+                vm_ref.borrow().week_start_day(),
             ));
         }
     });
@@ -93,6 +103,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 vm_ref.borrow().display(),
                 vm_ref.borrow().selected(),
                 vm_ref.borrow().today(),
+                vm_ref.borrow().week_start_day(),
             ));
         }
     });
@@ -108,6 +119,23 @@ fn main() -> Result<(), Box<dyn Error>> {
                 vm_ref.borrow().display(),
                 vm_ref.borrow().selected(),
                 vm_ref.borrow().today(),
+                vm_ref.borrow().week_start_day(),
+            ));
+        }
+    });
+
+    let weak = ui.as_weak();
+    let vm_ref = Rc::clone(&vm);
+    ui.on_week_start_changed(move |day| {
+        if let Some(ui) = weak.upgrade() {
+            let start = day as usize;
+            vm_ref.borrow_mut().set_week_start_day(start);
+            set_weekdays_ui(&ui, start);
+            ui.set_month_data(build_month_vm(
+                vm_ref.borrow().display(),
+                vm_ref.borrow().selected(),
+                vm_ref.borrow().today(),
+                start,
             ));
         }
     });
@@ -121,6 +149,7 @@ struct CalendarState {
     display: (isize, usize),
     selected: Ymd,
     today: Ymd,
+    week_start_day: usize,
 }
 
 impl CalendarState {
@@ -130,6 +159,7 @@ impl CalendarState {
             display: (today.0, today.1),
             selected: today,
             today,
+            week_start_day: 0,
         }
     }
 
@@ -143,6 +173,14 @@ impl CalendarState {
 
     fn today(&self) -> Ymd {
         self.today
+    }
+
+    fn week_start_day(&self) -> usize {
+        self.week_start_day
+    }
+
+    fn set_week_start_day(&mut self, day: usize) {
+        self.week_start_day = day;
     }
 
     fn prev_month(&mut self) {

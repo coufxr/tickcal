@@ -1,3 +1,6 @@
+import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
+import { CalendarSpacingConfig } from "../config/calendar-config.slint";
+
 export component CalendarHeader inherits Rectangle {
     in property <int> year;
     in property <int> month;
@@ -6,19 +9,12 @@ export component CalendarHeader inherits Rectangle {
     callback next_month();
     callback go_today();
 
-    private property <color> text_primary: #1B1B1B;
-    private property <color> text_secondary: #616161;
-    private property <color> accent_color: #0078D4;
-    private property <color> btn_bg: #F2F2F2;
-    private property <color> btn_hover: #E5E5E5;
-
-    height: 56px;
+    height: CalendarSpacingConfig.nav_height;
 
     HorizontalLayout {
-        spacing: 12px;
+        spacing: CalendarSpacingConfig.nav_spacing;
         alignment: space-between;
 
-        // 左侧：年月标题
         HorizontalLayout {
             spacing: 8px;
             alignment: start;
@@ -27,28 +23,26 @@ export component CalendarHeader inherits Rectangle {
                 text: root.year + "年" + root.month + "月";
                 font-size: 28px;
                 font-weight: 700;
-                color: text_primary;
+                color: Fluent2Palette.text_primary;
                 vertical-alignment: center;
             }
         }
 
-        // 右侧：导航按钮
         HorizontalLayout {
             spacing: 8px;
             alignment: end;
 
-            // 今天按钮
             Rectangle {
-                width: 64px;
-                height: 36px;
+                width: CalendarSpacingConfig.nav_btn_today_width;
+                height: CalendarSpacingConfig.nav_btn_size;
                 border-radius: 4px;
-                background: btn_bg;
+                background: Fluent2Palette.btn_bg;
 
                 Text {
                     text: "今天";
                     font-size: 14px;
                     font-weight: 600;
-                    color: accent_color;
+                    color: Fluent2Palette.accent;
                     horizontal-alignment: center;
                     vertical-alignment: center;
                 }
@@ -58,18 +52,17 @@ export component CalendarHeader inherits Rectangle {
                 }
             }
 
-            // 上月按钮
             Rectangle {
-                width: 36px;
-                height: 36px;
+                width: CalendarSpacingConfig.nav_btn_size;
+                height: CalendarSpacingConfig.nav_btn_size;
                 border-radius: 4px;
-                background: btn_bg;
+                background: Fluent2Palette.btn_bg;
 
                 Text {
                     text: "<";
                     font-size: 16px;
                     font-weight: 700;
-                    color: text_secondary;
+                    color: Fluent2Palette.text_secondary;
                     horizontal-alignment: center;
                     vertical-alignment: center;
                 }
@@ -79,18 +72,17 @@ export component CalendarHeader inherits Rectangle {
                 }
             }
 
-            // 下月按钮
             Rectangle {
-                width: 36px;
-                height: 36px;
+                width: CalendarSpacingConfig.nav_btn_size;
+                height: CalendarSpacingConfig.nav_btn_size;
                 border-radius: 4px;
-                background: btn_bg;
+                background: Fluent2Palette.btn_bg;
 
                 Text {
                     text: ">";
                     font-size: 16px;
                     font-weight: 700;
-                    color: text_secondary;
+                    color: Fluent2Palette.text_secondary;
                     horizontal-alignment: center;
                     vertical-alignment: center;
                 }

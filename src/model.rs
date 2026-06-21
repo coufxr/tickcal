@@ -30,8 +30,13 @@ pub fn today_ymd() -> Ymd {
     )
 }
 
-pub fn get_weekday_names() -> Vec<&'static str> {
-    vec!["日", "一", "二", "三", "四", "五", "六"]
+pub fn get_weekday_names(start_day: usize) -> Vec<&'static str> {
+    let all = ["日", "一", "二", "三", "四", "五", "六"];
+    let mut result = Vec::with_capacity(7);
+    for i in 0..7 {
+        result.push(all[(start_day + i) % 7]);
+    }
+    result
 }
 
 fn to_day_cell(
@@ -57,12 +62,19 @@ fn to_day_cell(
     }
 }
 
-pub fn build_month_view(year: isize, month: usize, selected: Ymd, today: Ymd) -> MonthView {
+pub fn build_month_view(
+    year: isize,
+    month: usize,
+    selected: Ymd,
+    today: Ymd,
+    week_start_day: usize,
+) -> MonthView {
     let current = SolarMonth::from_ym(year, month);
     let prev = current.next(-1);
     let next = current.next(1);
 
-    let leading = SolarDay::from_ymd(year, month, 1).get_week().get_index();
+    let raw_index = SolarDay::from_ymd(year, month, 1).get_week().get_index();
+    let leading = (raw_index + 7 - week_start_day) % 7;
     let mut days: Vec<DayCell> = Vec::new();
 
     let prev_count = prev.get_day_count();
