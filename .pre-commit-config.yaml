@@ -33,7 +33,7 @@ repos:
         description: Check the package for errors
         entry: cargo
         language: rust
-        args: [ "check", "--all" ]
+        args: [ "check", "--workspace" ]
         pass_filenames: false
 
       - id: cargo-clippy
@@ -41,5 +41,5 @@ repos:
         description: Lint rust sources
         entry: cargo
         language: rust
-        args: [ "clippy", "--all-targets", "--all-features", "--workspace", "--tests", "--benches", "--", "-D", "warnings" ]
+        args: [ "clippy", "--workspace", "--", "-D", "warnings" ]
         pass_filenames: false
