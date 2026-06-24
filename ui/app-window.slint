@@ -3,7 +3,10 @@ import { CalendarView } from "./components/calendar-view.slint";
 import { MenuBar } from "./components/menu-bar.slint";
 import { SettingsDialog } from "./components/settings-dialog.slint";
 import { Fluent2Palette } from "./theme/fluent2-tokens.slint";
-import { CalendarSettings, CalendarSpacingConfig } from "./config/calendar-config.slint";
+import {
+    CalendarSettings,
+    CalendarSpacingConfig,
+} from "./config/calendar-config.slint";
 
 export component AppWindow inherits Window {
     title: "Calendar";
@@ -13,10 +16,13 @@ export component AppWindow inherits Window {
     min-height: 640px;
     background: Fluent2Palette.surface_window;
 
+    // 月视图数据和星期标题行（由 Rust 端设置）
     in-out property <calendar_month> month_data;
     in-out property <weekday_row> weekdays;
+    // 设置对话框是否打开
     in-out property <bool> settings_open: false;
 
+    // 日历导航回调
     callback prev_month();
     callback next_month();
     callback go_today();
@@ -24,9 +30,35 @@ export component AppWindow inherits Window {
     callback open_settings();
     callback week_start_changed(int);
 
+    // 单元格大小计算属性（索引 → 像素值的唯一映射源）
+    // 注意：SettingsDialog.cell_size_changed 回调中不要重复此公式
+    property <length> computed_cell_size: CalendarSettings.cell_size_index == 0 ? 56px : CalendarSettings.cell_size_index == 2 ? 88px : 72px;
+    changed computed_cell_size => {
+        CalendarSpacingConfig.cell_size = self.computed_cell_size;
+    }
+
+    // 设置持久化：Rust 端在启动时调用此回调，将保存的设置推送到 UI 全局变量
+    // 参数顺序：深色模式、主题色索引、每周起始日、单元格大小索引
+    callback apply_settings(bool, int, int, int);
+    apply_settings(da, ai, ws, cs) => {
+        Fluent2Palette.dark_mode = da;
+        Fluent2Palette.selected_accent_index = ai;
+        CalendarSettings.color_scheme_index = ai; // 与 selected_accent_index 保持同步
+        CalendarSettings.week_start_day = ws;
+        CalendarSettings.cell_size_index = cs;
+    }
+
+    // 只读代理属性：Rust 端在窗口关闭时读取这些值并保存到磁盘
+    out property <bool> persisted_dark_mode: Fluent2Palette.dark_mode;
+    out property <int> persisted_accent_index: Fluent2Palette.selected_accent_index;
+    out property <int> persisted_week_start_day: CalendarSettings.week_start_day;
+    out property <int> persisted_cell_size_index: CalendarSettings.cell_size_index;
+
     VerticalLayout {
         MenuBar {
-            open_settings => { root.settings_open = true; }
+            open_settings => {
+                root.settings_open = true;
+            }
         }
 
         HorizontalLayout {
@@ -41,10 +73,18 @@ export component AppWindow inherits Window {
                     weekdays: root.weekdays;
                     week_start_day: CalendarSettings.week_start_day;
 
-                    prev_month => { root.prev_month(); }
-                    next_month => { root.next_month(); }
-                    go_today => { root.go_today(); }
-                    day_clicked(year, month, day) => { root.day_clicked(year, month, day); }
+                    prev_month => {
+                        root.prev_month();
+                    }
+                    next_month => {
+                        root.next_month();
+                    }
+                    go_today => {
+                        root.go_today();
+                    }
+                    day_clicked(year, month, day) => {
+                        root.day_clicked(year, month, day);
+                    }
                 }
             }
 
@@ -94,15 +134,29 @@ export component AppWindow inherits Window {
         }
     }
 
+    // 设置对话框：用户修改设置后，同步更新对应的全局变量
     SettingsDialog {
         is_open: root.settings_open;
-        close => { root.settings_open = false; }
-        week_start_changed(day) => { CalendarSettings.week_start_day = day; root.week_start_changed(day); }
-        accent_changed(idx) => { CalendarSettings.color_scheme_index = idx; Fluent2Palette.selected_accent_index = idx; }
+        close => {
+            root.settings_open = false;
+        }
+        // 每周起始日变更：更新配置 + 通知 Rust 端重建日历
+        week_start_changed(day) => {
+            CalendarSettings.week_start_day = day;
+            root.week_start_changed(day);
+        }
+        // 主题色变更：同步更新两个全局变量（color_scheme_index 供设置对话框高亮用，selected_accent_index 供主题渲染用）
+        accent_changed(idx) => {
+            CalendarSettings.color_scheme_index = idx;
+            Fluent2Palette.selected_accent_index = idx;
+        }
+        // 单元格大小变更：只需更新索引，computed_cell_size 属性会自动同步到 CalendarSpacingConfig
         cell_size_changed(idx) => {
             CalendarSettings.cell_size_index = idx;
-            CalendarSpacingConfig.cell_size = idx == 0 ? 56px : idx == 2 ? 88px : 72px;
         }
-        dark_mode_changed(dark) => { Fluent2Palette.dark_mode = dark; }
+        // 深色模式切换
+        dark_mode_changed(dark) => {
+            Fluent2Palette.dark_mode = dark;
+        }
     }
 }
