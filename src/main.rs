@@ -3,12 +3,12 @@
 
 use std::error::Error;
 
+use slint::ComponentHandle;
+
+mod calendar;
 mod lifespan;
 mod model;
 mod settings;
-mod viewmodel;
-
-use viewmodel::CalendarViewModel;
 
 // 引入 Slint 编译器生成的模块（包含 AppWindow 等 UI 类型）
 slint::include_modules!();
@@ -22,11 +22,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     // 启动：加载设置
     let app_settings = lifespan::on_start();
 
-    // 创建 ViewModel（应用设置到 UI + 初始化视图）
-    let vm = CalendarViewModel::from_settings(&ui, &app_settings);
+    // 应用设置到 UI
+    ui.invoke_apply_settings(
+        app_settings.dark_mode,
+        app_settings.accent_index,
+        app_settings.week_start_day,
+        app_settings.cell_size_index,
+    );
 
-    // 注册 UI 交互回调（月份导航、日期选择、起始日切换）
-    CalendarViewModel::register_callbacks(&ui, &vm);
+    // 初始化日历 MVU（通道 + Timer + 回调）
+    let _bridge = calendar::bridge::setup(&ui, app_settings);
 
     // 关闭：保存设置到磁盘
     lifespan::on_close(&ui);
