@@ -1,5 +1,6 @@
-import { calendar_month, weekday_row } from "./types/calendar-types.slint";
+import { CalendarMonth, WeekdayRow } from "./types/calendar-types.slint";
 import { CalendarView } from "./components/calendar-view.slint";
+import { TodoPanel } from "./components/todo-panel.slint";
 import { MenuBar } from "./components/menu-bar.slint";
 import { SettingsDialog } from "./components/settings-dialog.slint";
 import { Fluent2Palette } from "./theme/fluent2-tokens.slint";
@@ -7,6 +8,7 @@ import {
     CalendarSettings,
     CalendarSpacingConfig,
 } from "./config/calendar-config.slint";
+import { TodoState } from "./globals/todo-state.slint";
 
 export component AppWindow inherits Window {
     title: "Calendar";
@@ -17,8 +19,8 @@ export component AppWindow inherits Window {
     background: Fluent2Palette.surface_window;
 
     // 月视图数据和星期标题行（由 Rust 端设置）
-    in-out property <calendar_month> month_data;
-    in-out property <weekday_row> weekdays;
+    in-out property <CalendarMonth> month_data;
+    in-out property <WeekdayRow> weekdays;
     // 设置对话框是否打开
     in-out property <bool> settings_open: false;
 
@@ -31,19 +33,17 @@ export component AppWindow inherits Window {
     callback week_start_changed(int);
 
     // 单元格大小计算属性（索引 → 像素值的唯一映射源）
-    // 注意：SettingsDialog.cell_size_changed 回调中不要重复此公式
     property <length> computed_cell_size: CalendarSettings.cell_size_index == 0 ? 56px : CalendarSettings.cell_size_index == 2 ? 88px : 72px;
     changed computed_cell_size => {
         CalendarSpacingConfig.cell_size = self.computed_cell_size;
     }
 
     // 设置持久化：Rust 端在启动时调用此回调，将保存的设置推送到 UI 全局变量
-    // 参数顺序：深色模式、主题色索引、每周起始日、单元格大小索引
     callback apply_settings(bool, int, int, int);
     apply_settings(da, ai, ws, cs) => {
         Fluent2Palette.dark_mode = da;
         Fluent2Palette.selected_accent_index = ai;
-        CalendarSettings.color_scheme_index = ai; // 与 selected_accent_index 保持同步
+        CalendarSettings.color_scheme_index = ai;
         CalendarSettings.week_start_day = ws;
         CalendarSettings.cell_size_index = cs;
     }
@@ -64,11 +64,14 @@ export component AppWindow inherits Window {
         HorizontalLayout {
             vertical-stretch: 1;
 
+            // 左侧：日历
             Rectangle {
+                width: CalendarSpacingConfig.cell_size * 7 + CalendarSpacingConfig.gap * 6 + CalendarSpacingConfig.view_padding * 2;
                 background: Fluent2Palette.surface_window;
-                horizontal-stretch: 1;
+                horizontal-stretch: 0;
 
                 CalendarView {
+                    width: parent.width;
                     month_data: root.month_data;
                     weekdays: root.weekdays;
                     week_start_day: CalendarSettings.week_start_day;
@@ -88,53 +91,20 @@ export component AppWindow inherits Window {
                 }
             }
 
+            // 右侧：Todo 面板
             Rectangle {
                 background: Fluent2Palette.surface_panel;
                 border-width: 1px;
                 border-color: Fluent2Palette.border_default;
                 min-width: 320px;
-                horizontal-stretch: 0;
+                horizontal-stretch: 1;
 
-                VerticalLayout {
-                    alignment: center;
-                    padding: 24px;
-
-                    Rectangle {
-                        border-radius: 8px;
-                        background: Fluent2Palette.surface_card;
-                        border-width: 1px;
-                        border-color: Fluent2Palette.border_default;
-                        height: 200px;
-
-                        VerticalLayout {
-                            alignment: center;
-                            spacing: 8px;
-
-                            Text {
-                                text: "扩展页面";
-                                font-size: 18px;
-                                font-weight: 600;
-                                color: Fluent2Palette.text_card_title;
-                                horizontal-alignment: center;
-                                vertical-alignment: center;
-                            }
-
-                            Text {
-                                text: "Fluent2 风格";
-                                font-size: 13px;
-                                font-weight: 400;
-                                color: Fluent2Palette.text_secondary;
-                                horizontal-alignment: center;
-                                vertical-alignment: center;
-                            }
-                        }
-                    }
-                }
+                TodoPanel { }
             }
         }
     }
 
-    // 设置对话框：用户修改设置后，同步更新对应的全局变量
+    // 设置对话框
     SettingsDialog {
         is_open: root.settings_open;
         close => {
@@ -160,3 +130,5 @@ export component AppWindow inherits Window {
         }
     }
 }
+
+export { TodoState }

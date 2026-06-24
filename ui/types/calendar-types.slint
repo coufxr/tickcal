@@ -1,8 +1,8 @@
-export struct weekday_row  {
+export struct WeekdayRow {
     label: [string]
 }
 
-export struct calendar_day {
+export struct CalendarDay {
     year: int,
     month: int,
     day: int,
@@ -10,10 +10,11 @@ export struct calendar_day {
     is_selected: bool,
     is_weekend: bool,
     is_current_month: bool,
+    has_todo: bool,
 }
 
-export struct calendar_month {
+export struct CalendarMonth {
     year: int,
     month: int,
-    days: [calendar_day]
+    days: [CalendarDay]
 }

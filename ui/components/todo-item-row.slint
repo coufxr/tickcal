@@ -1,0 +1,89 @@
+import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
+
+export component TodoItemRow inherits Rectangle {
+    in property <int> item_id;
+    in property <string> item_text;
+    in property <bool> item_completed;
+    in property <int> row_index;
+
+    callback toggle(int);
+    callback delete(int);
+
+    height: 44px;
+    border-radius: 6px;
+
+    // 三色交替底色
+    property <int> color_cycle: Math.mod(root.row_index, 3);
+    property <color> row_bg_color: color_cycle == 0 ? Fluent2Palette.row_alt_1 : color_cycle == 1 ? Fluent2Palette.row_alt_2 : Fluent2Palette.row_alt_3;
+
+    // hover 检测：放在子元素后面，has-hover 基于坐标而非 z-order
+    hover_bg := Rectangle {
+        width: 100%;
+        height: 100%;
+        border-radius: 6px;
+        background: hover_area.has-hover ? Fluent2Palette.accent_light : root.row_bg_color;
+    }
+
+    hover_area := TouchArea { }
+
+    HorizontalLayout {
+        padding-left: 8px;
+        padding-right: 8px;
+        spacing: 12px;
+
+        // Fluent2 风格复选框
+        Rectangle {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border-width: 1.5px;
+            border-color: root.item_completed ? Fluent2Palette.accent : Fluent2Palette.border_default;
+            background: root.item_completed ? Fluent2Palette.accent : transparent;
+            y: (parent.height - self.height) / 2;
+
+            Image {
+                source: @image-url("../icons/check.svg");
+                width: 12px;
+                height: 12px;
+                colorize: Fluent2Palette.text_on_accent;
+                visible: root.item_completed;
+            }
+
+            TouchArea {
+                clicked => { root.toggle(root.item_id); }
+                mouse-cursor: pointer;
+            }
+        }
+
+        // 文本
+        Text {
+            text: root.item_text;
+            font-size: 14px;
+            color: root.item_completed ? Fluent2Palette.text_tertiary : Fluent2Palette.text_primary;
+            horizontal-stretch: 1;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+
+        // 删除按钮
+        Rectangle {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: del_btn.has-hover ? Fluent2Palette.btn_hover : Fluent2Palette.btn_bg;
+            y: (parent.height - self.height) / 2;
+
+            Image {
+                source: @image-url("../icons/close.svg");
+                width: 14px;
+                height: 14px;
+                colorize: Fluent2Palette.text_secondary;
+            }
+
+            del_btn := TouchArea {
+                clicked => { root.delete(root.item_id); }
+                mouse-cursor: pointer;
+            }
+        }
+    }
+}

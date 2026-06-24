@@ -1,0 +1,68 @@
+import { TodoState } from "../globals/todo-state.slint";
+import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
+import { TodoInput } from "./todo-input.slint";
+import { TodoItemRow } from "./todo-item-row.slint";
+
+export component TodoPanel inherits Rectangle {
+    background: transparent;
+
+    VerticalLayout {
+        padding: 20px;
+        spacing: 12px;
+        alignment: start;
+
+        // 标题
+        Text {
+            text: TodoState.selected_date == "" ? "请选择日期" : TodoState.selected_date + " 的待办";
+            font-size: 18px;
+            font-weight: 700;
+            color: Fluent2Palette.text_card_title;
+        }
+
+        // 分割线
+        Rectangle {
+            height: 1px;
+            background: Fluent2Palette.divider;
+        }
+
+        // 输入区域
+        TodoInput {
+            selected_date: TodoState.selected_date;
+            status_text: TodoState.status_text;
+            add_todo(text) => { TodoState.add_todo(text); }
+        }
+
+        // 状态提示
+        if TodoState.status_text != "": Rectangle {
+            height: 28px;
+            border-radius: 4px;
+            background: Fluent2Palette.surface_tile;
+
+            Text {
+                x: 12px;
+                text: TodoState.status_text;
+                font-size: 12px;
+                color: Fluent2Palette.text_secondary;
+                vertical-alignment: center;
+            }
+        }
+
+        // Todo 列表
+        Flickable {
+            vertical-stretch: 1;
+
+            VerticalLayout {
+                spacing: 2px;
+
+                for item[i] in TodoState.todo_items: TodoItemRow {
+                    item_id: item.id;
+                    item_text: item.text;
+                    item_completed: item.completed;
+                    row_index: i;
+                    toggle(id) => { TodoState.toggle_todo(id); }
+                    delete(id) => { TodoState.delete_todo(id); }
+                }
+            }
+        }
+    }
+}

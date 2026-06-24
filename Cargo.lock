@@ -705,6 +705,7 @@ dependencies = [
  "env_logger",
  "log",
  "serde",
+ "serde_json",
  "slint",
  "slint-build",
  "toml 0.8.23",

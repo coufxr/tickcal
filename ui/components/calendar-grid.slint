@@ -1,10 +1,12 @@
-import { calendar_month, weekday_row } from "../types/calendar-types.slint";
+import { CalendarMonth, WeekdayRow } from "../types/calendar-types.slint";
 import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
 import { CalendarSpacingConfig } from "../config/calendar-config.slint";
+import { WeekdayLabel } from "./calendar-weekday-label.slint";
+import { CalendarDayCell } from "./calendar-day-cell.slint";
 
 export component CalendarGrid inherits Rectangle {
-    in property <calendar_month> month_data;
-    in property <weekday_row> weekdays;
+    in property <CalendarMonth> month_data;
+    in property <WeekdayRow> weekdays;
     in property <int> week_start_day;
 
     callback day_clicked(int, int, int);
@@ -20,15 +22,11 @@ export component CalendarGrid inherits Rectangle {
             spacing: CalendarSpacingConfig.gap;
             height: CalendarSpacingConfig.header_height;
 
-            for i in 7: Text {
+            for i in 7: WeekdayLabel {
                 property <int> actual_day: Math.mod(root.week_start_day + i, 7);
                 horizontal-stretch: 1;
                 text: weekdays.label[i];
-                horizontal-alignment: center;
-                vertical-alignment: center;
-                font-weight: 600;
-                font-size: 13px;
-                color: actual_day == 0 || actual_day == 6 ? Fluent2Palette.text_weekday_weekend : Fluent2Palette.text_secondary;
+                is_weekend: actual_day == 0 || actual_day == 6;
             }
         }
 
@@ -48,33 +46,20 @@ export component CalendarGrid inherits Rectangle {
             width: CalendarSpacingConfig.cell_size * 7 + CalendarSpacingConfig.gap * 6;
             height: CalendarSpacingConfig.cell_size * 6 + CalendarSpacingConfig.gap * 6;
 
-            for day[idx] in month_data.days: Rectangle {
+            for day[idx] in month_data.days: CalendarDayCell {
                 row: idx / 7;
                 col: Math.mod(idx, 7);
                 width: CalendarSpacingConfig.cell_size;
                 height: CalendarSpacingConfig.cell_size;
-                border-radius: 4px;
-
-                background: day.is_today ? Fluent2Palette.accent
-                    : day.is_selected ? Fluent2Palette.accent_light
-                    : day.is_current_month ? Fluent2Palette.surface_tile
-                    : transparent;
-
-                Text {
-                    text: day.day;
-                    horizontal-alignment: center;
-                    vertical-alignment: center;
-                    font-weight: day.is_today ? 700 : (day.is_current_month ? 600 : 400);
-                    font-size: 16px;
-                    color: day.is_today ? Fluent2Palette.text_on_accent
-                        : day.is_selected ? Fluent2Palette.accent
-                        : day.is_current_month ? (day.is_weekend ? Fluent2Palette.text_weekend : Fluent2Palette.text_primary)
-                        : Fluent2Palette.text_tertiary;
-                }
-
-                TouchArea {
-                    clicked => { root.day_clicked(day.year, day.month, day.day); }
-                }
+                year: day.year;
+                month: day.month;
+                day_num: day.day;
+                is_today: day.is_today;
+                is_selected: day.is_selected;
+                is_current_month: day.is_current_month;
+                is_weekend: day.is_weekend;
+                has_todo: day.has_todo;
+                clicked => { root.day_clicked(day.year, day.month, day.day); }
             }
         }
     }

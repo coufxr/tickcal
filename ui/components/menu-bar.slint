@@ -20,22 +20,23 @@ export component MenuBar inherits Rectangle {
         }
 
         Rectangle {
-            width: 72px;
+            width: 28px;
             height: 28px;
             border-radius: 4px;
-            background: Fluent2Palette.surface_tile;
+            background: settings_touch.has-hover ? Fluent2Palette.btn_hover : Fluent2Palette.btn_bg;
 
-            Text {
-                text: "设置";
-                font-size: 13px;
-                font-weight: 500;
-                color: Fluent2Palette.text_primary;
+            Image {
+                source: @image-url("../icons/settings.svg");
+                width: 16px;
+                height: 16px;
+                colorize: Fluent2Palette.text_secondary;
                 horizontal-alignment: center;
                 vertical-alignment: center;
             }
 
-            TouchArea {
+            settings_touch := TouchArea {
                 clicked => { root.open_settings(); }
+                mouse-cursor: pointer;
             }
         }
     }

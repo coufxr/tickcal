@@ -4,9 +4,8 @@
 
 use slint::{CloseRequestResponse, ComponentHandle};
 
-use crate::AppWindow;
-use crate::settings;
 use crate::settings::AppSettings;
+use crate::{AppWindow, settings};
 
 /// 应用启动：加载设置
 pub fn on_start() -> AppSettings {

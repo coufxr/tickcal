@@ -1,0 +1,11 @@
+import { TodoItem } from "../types/todo-types.slint";
+
+export global TodoState {
+    in-out property <string> selected_date;
+    in-out property <[TodoItem]> todo_items;
+    in-out property <string> status_text;
+
+    callback add_todo(string);
+    callback toggle_todo(int);
+    callback delete_todo(int);
+}

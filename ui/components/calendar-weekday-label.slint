@@ -4,15 +4,14 @@ export component WeekdayLabel inherits Rectangle {
     in property <string> text;
     in property <bool> is_weekend: false;
 
-    border-radius: 4px;
-    background: Fluent2Palette.surface_weekday_header;
+    background: transparent;
 
     Text {
         text: root.text;
         horizontal-alignment: center;
         vertical-alignment: center;
-        font-weight: 600;
+        font-weight: 400;
         font-size: 12px;
-        color: root.is_weekend ? Fluent2Palette.text_weekday_weekend : Fluent2Palette.text_secondary;
+        color: root.is_weekend ? Fluent2Palette.text_weekend : Fluent2Palette.text_tertiary;
     }
 }

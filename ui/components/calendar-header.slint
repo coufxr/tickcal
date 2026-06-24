@@ -9,6 +9,7 @@ export component CalendarHeader inherits Rectangle {
     callback next_month();
     callback go_today();
 
+    width: CalendarSpacingConfig.cell_size * 7 + CalendarSpacingConfig.gap * 6;
     height: CalendarSpacingConfig.nav_height;
 
     HorizontalLayout {
@@ -21,22 +22,23 @@ export component CalendarHeader inherits Rectangle {
 
             Text {
                 text: root.year + "年" + root.month + "月";
-                font-size: 28px;
-                font-weight: 700;
+                font-size: 24px;
+                font-weight: 600;
                 color: Fluent2Palette.text_primary;
                 vertical-alignment: center;
             }
         }
 
         HorizontalLayout {
-            spacing: 8px;
+            spacing: 4px;
             alignment: end;
 
+            // 今天按钮
             Rectangle {
                 width: CalendarSpacingConfig.nav_btn_today_width;
                 height: CalendarSpacingConfig.nav_btn_size;
                 border-radius: 4px;
-                background: Fluent2Palette.btn_bg;
+                background: today_touch.has-hover ? Fluent2Palette.btn_hover : Fluent2Palette.btn_bg;
 
                 Text {
                     text: "今天";
@@ -47,48 +49,56 @@ export component CalendarHeader inherits Rectangle {
                     vertical-alignment: center;
                 }
 
-                TouchArea {
-                    clicked => { root.go_today(); }
+                today_touch := TouchArea {
+                    clicked => {
+                        root.go_today();
+                    }
                 }
             }
 
+            // 上一月按钮
             Rectangle {
                 width: CalendarSpacingConfig.nav_btn_size;
                 height: CalendarSpacingConfig.nav_btn_size;
                 border-radius: 4px;
-                background: Fluent2Palette.btn_bg;
+                background: prev_touch.has-hover ? Fluent2Palette.btn_hover : Fluent2Palette.btn_bg;
 
-                Text {
-                    text: "<";
-                    font-size: 16px;
-                    font-weight: 700;
-                    color: Fluent2Palette.text_secondary;
+                Image {
+                    source: @image-url("../icons/chevron-left.svg");
+                    width: 16px;
+                    height: 16px;
+                    colorize: Fluent2Palette.text_secondary;
                     horizontal-alignment: center;
                     vertical-alignment: center;
                 }
 
-                TouchArea {
-                    clicked => { root.prev_month(); }
+                prev_touch := TouchArea {
+                    clicked => {
+                        root.prev_month();
+                    }
                 }
             }
 
+            // 下一月按钮
             Rectangle {
                 width: CalendarSpacingConfig.nav_btn_size;
                 height: CalendarSpacingConfig.nav_btn_size;
                 border-radius: 4px;
-                background: Fluent2Palette.btn_bg;
+                background: next_touch.has-hover ? Fluent2Palette.btn_hover : Fluent2Palette.btn_bg;
 
-                Text {
-                    text: ">";
-                    font-size: 16px;
-                    font-weight: 700;
-                    color: Fluent2Palette.text_secondary;
+                Image {
+                    source: @image-url("../icons/chevron-right.svg");
+                    width: 16px;
+                    height: 16px;
+                    colorize: Fluent2Palette.text_secondary;
                     horizontal-alignment: center;
                     vertical-alignment: center;
                 }
 
-                TouchArea {
-                    clicked => { root.next_month(); }
+                next_touch := TouchArea {
+                    clicked => {
+                        root.next_month();
+                    }
                 }
             }
         }

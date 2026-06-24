@@ -1,0 +1,69 @@
+import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
+
+export component TodoInput inherits HorizontalLayout {
+    in property <string> selected_date;
+    in-out property <string> status_text;
+
+    callback add_todo(string);
+
+    spacing: 8px;
+    height: 36px;
+
+    Rectangle {
+        horizontal-stretch: 1;
+        height: 36px;
+        border-radius: 6px;
+        border-width: 1px;
+        border-color: Fluent2Palette.border_default;
+        background: Fluent2Palette.surface_card;
+
+        input := TextInput {
+            x: 12px;
+            width: parent.width - 24px;
+            height: 36px;
+            vertical-alignment: center;
+            font-size: 14px;
+            color: Fluent2Palette.text_primary;
+            accepted => {
+                if (root.selected_date == "") {
+                    root.status_text = "请先选择一个日期";
+                } else if (self.text != "") {
+                    root.add_todo(self.text);
+                    self.text = "";
+                    root.status_text = "";
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        width: 72px;
+        height: 36px;
+        border-radius: 6px;
+        background: add_btn.has-hover ? Fluent2Palette.accent_hover : Fluent2Palette.accent;
+
+        Text {
+            text: "添加";
+            font-size: 14px;
+            font-weight: 600;
+            color: Fluent2Palette.text_on_accent;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+
+        add_btn := TouchArea {
+            clicked => {
+                if (root.selected_date == "") {
+                    root.status_text = "请先选择一个日期";
+                } else if (input.text == "") {
+                    root.status_text = "请输入待办内容";
+                } else {
+                    root.add_todo(input.text);
+                    input.text = "";
+                    root.status_text = "";
+                }
+            }
+            mouse-cursor: pointer;
+        }
+    }
+}

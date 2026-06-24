@@ -8,29 +8,46 @@ export component CalendarDayCell inherits Rectangle {
     in property <bool> is_selected;
     in property <bool> is_current_month;
     in property <bool> is_weekend;
+    in property <bool> has_todo;
 
     border-radius: 4px;
 
-    background: is_today ? Fluent2Palette.accent
+    property <color> base_bg: is_today ? Fluent2Palette.accent
         : is_selected ? Fluent2Palette.accent_light
         : is_current_month ? Fluent2Palette.surface_tile
         : transparent;
+
+    property <color> hover_bg: is_today ? Fluent2Palette.accent_hover
+        : is_selected ? Fluent2Palette.accent_light
+        : is_current_month ? Fluent2Palette.surface_card
+        : transparent;
+
+    background: touch.has-hover ? root.hover_bg : root.base_bg;
 
     Text {
         text: root.day_num;
         horizontal-alignment: center;
         vertical-alignment: center;
         font-weight: is_today ? 700 : (is_current_month ? 600 : 400);
-        font-size: 14px;
+        font-size: 16px;
         color: is_today ? Fluent2Palette.text_on_accent
             : is_selected ? Fluent2Palette.accent
             : is_current_month ? (is_weekend ? Fluent2Palette.text_weekend : Fluent2Palette.text_primary)
             : Fluent2Palette.text_tertiary;
     }
 
-    TouchArea {
-        clicked => { root.clicked(); }
+    if has_todo: Rectangle {
+        width: 6px;
+        height: 6px;
+        border-radius: 3px;
+        background: is_today ? Fluent2Palette.text_on_accent : Fluent2Palette.accent;
+        x: parent.width / 2 - 3px;
+        y: parent.height - 10px;
     }
 
     callback clicked();
+
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+    }
 }

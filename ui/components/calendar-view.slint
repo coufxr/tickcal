@@ -1,11 +1,11 @@
-import { calendar_month, weekday_row } from "../types/calendar-types.slint";
+import { CalendarMonth, WeekdayRow } from "../types/calendar-types.slint";
 import { CalendarHeader } from "./calendar-header.slint";
 import { CalendarGrid } from "./calendar-grid.slint";
 import { CalendarSpacingConfig } from "../config/calendar-config.slint";
 
 export component CalendarView inherits Rectangle {
-    in property <calendar_month> month_data;
-    in property <weekday_row> weekdays;
+    in property <CalendarMonth> month_data;
+    in property <WeekdayRow> weekdays;
     in property <int> week_start_day;
 
     callback prev_month();

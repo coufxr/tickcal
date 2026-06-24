@@ -50,11 +50,11 @@ export component SettingsDialog inherits Rectangle {
                     border-radius: 4px;
                     background: close_btn.has-hover ? Fluent2Palette.btn_hover : Fluent2Palette.btn_bg;
 
-                    Text {
-                        text: "×";
-                        font-size: 20px;
-                        font-weight: 400;
-                        color: Fluent2Palette.text_secondary;
+                    Image {
+                        source: @image-url("../icons/close.svg");
+                        width: 14px;
+                        height: 14px;
+                        colorize: Fluent2Palette.text_secondary;
                         horizontal-alignment: center;
                         vertical-alignment: center;
                     }

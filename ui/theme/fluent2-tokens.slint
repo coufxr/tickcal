@@ -26,7 +26,7 @@ export global Fluent2Palette {
     // Derived accent colors (reactive to dark_mode + selected_accent_index)
     in-out property <color> accent: dark_mode ? accent_dark_colors[Math.mod(selected_accent_index, accent_dark_colors.length)] : accent_colors[Math.mod(selected_accent_index, accent_colors.length)];
     in-out property <color> accent_light: accent_light_colors[Math.mod(selected_accent_index, accent_light_colors.length)];
-    in-out property <color> accent_hover: dark_mode ? accent_dark_colors[Math.mod(selected_accent_index, accent_dark_colors.length)] : accent_dark_colors[Math.mod(selected_accent_index, accent_dark_colors.length)];
+    in-out property <color> accent_hover: dark_mode ? accent_light_colors[Math.mod(selected_accent_index, accent_light_colors.length)] : accent_dark_colors[Math.mod(selected_accent_index, accent_dark_colors.length)];
     in-out property <color> text_on_accent: #FFFFFF;
 
     // Surface
@@ -53,4 +53,9 @@ export global Fluent2Palette {
     // Button
     in-out property <color> btn_bg: dark_mode ? #3C3C3C : #F2F2F2;
     in-out property <color> btn_hover: dark_mode ? #4A4A4A : #E5E5E5;
+
+    // 三色交替行底色（Fluent2 标准灰色系）
+    in-out property <color> row_alt_1: dark_mode ? #1E1E1E : #FFFFFF;
+    in-out property <color> row_alt_2: dark_mode ? #2D2D2D : #F9F9F9;
+    in-out property <color> row_alt_3: dark_mode ? #3C3C3C : #F3F3F3;
 }
