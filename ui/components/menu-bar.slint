@@ -1,4 +1,5 @@
 import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
+import { IconButton } from "./common/icon-button.slint";
 
 export component MenuBar inherits Rectangle {
     callback open_settings();
@@ -19,25 +20,10 @@ export component MenuBar inherits Rectangle {
             vertical-alignment: center;
         }
 
-        Rectangle {
-            width: 28px;
-            height: 28px;
-            border-radius: 4px;
-            background: settings_touch.has-hover ? Fluent2Palette.btn_hover : Fluent2Palette.btn_bg;
-
-            Image {
-                source: @image-url("../icons/settings.svg");
-                width: 16px;
-                height: 16px;
-                colorize: Fluent2Palette.text_secondary;
-                horizontal-alignment: center;
-                vertical-alignment: center;
-            }
-
-            settings_touch := TouchArea {
-                clicked => { root.open_settings(); }
-                mouse-cursor: pointer;
-            }
+        IconButton {
+            icon: @image-url("../icons/settings.svg");
+            label: "设置";
+            clicked => { root.open_settings(); }
         }
     }
 }

@@ -1,4 +1,4 @@
-import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
+import { Fluent2Palette } from "../../theme/fluent2-tokens.slint";
 
 export component TodoInput inherits HorizontalLayout {
     in property <string> selected_date;
@@ -33,6 +33,9 @@ export component TodoInput inherits HorizontalLayout {
                     root.status_text = "";
                 }
             }
+
+            accessible-role: text-input;
+            accessible-label: "输入待办事项";
         }
     }
 
@@ -41,6 +44,8 @@ export component TodoInput inherits HorizontalLayout {
         height: 36px;
         border-radius: 6px;
         background: add_btn.has-hover ? Fluent2Palette.accent_hover : Fluent2Palette.accent;
+
+        animate background { duration: 150ms; }
 
         Text {
             text: "添加";
@@ -65,5 +70,8 @@ export component TodoInput inherits HorizontalLayout {
             }
             mouse-cursor: pointer;
         }
+
+        accessible-role: button;
+        accessible-label: "添加";
     }
 }

@@ -1,0 +1,33 @@
+import { Fluent2Palette } from "../../theme/fluent2-tokens.slint";
+
+export component IconButton inherits Rectangle {
+    in property <length> icon_size: 28px;
+    in property <image> icon;
+    in property <string> label;
+
+    callback clicked();
+
+    width: icon_size;
+    height: icon_size;
+    border-radius: 4px;
+    background: touch.has-hover ? Fluent2Palette.btn_hover : Fluent2Palette.btn_bg;
+
+    animate background { duration: 150ms; }
+
+    Image {
+        source: icon;
+        width: 16px;
+        height: 16px;
+        colorize: Fluent2Palette.text_secondary;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+        mouse-cursor: pointer;
+    }
+
+    accessible-role: button;
+    accessible-label: root.label;
+}

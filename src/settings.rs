@@ -7,19 +7,11 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 
+use crate::util;
+
 /// 获取设置文件路径
-///
-/// - Debug 模式：写入当前工作目录（项目根目录），方便开发调试
-/// - Release 模式：写入系统配置目录（Windows: %APPDATA%/calendar/）
 fn settings_path() -> PathBuf {
-    let dir = if cfg!(debug_assertions) {
-        PathBuf::from(".")
-    } else {
-        dirs::config_dir()
-            .unwrap_or_else(|| PathBuf::from("."))
-            .join("calendar")
-    };
-    dir.join("settings.toml")
+    util::config_dir().join("settings.toml")
 }
 
 /// 应用设置结构体，与 TOML 文件字段一一对应

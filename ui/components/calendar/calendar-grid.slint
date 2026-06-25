@@ -1,7 +1,7 @@
-import { CalendarMonth, WeekdayRow } from "../types/calendar-types.slint";
-import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
-import { CalendarSpacingConfig } from "../config/calendar-config.slint";
-import { WeekdayLabel } from "./calendar-weekday-label.slint";
+import { CalendarMonth, WeekdayRow } from "../../types/calendar-types.slint";
+import { Fluent2Palette } from "../../theme/fluent2-tokens.slint";
+import { CalendarSpacingConfig } from "../../config/calendar-config.slint";
+import { CalendarWeekdayLabel } from "./calendar-weekday-label.slint";
 import { CalendarDayCell } from "./calendar-day-cell.slint";
 
 export component CalendarGrid inherits Rectangle {
@@ -12,17 +12,17 @@ export component CalendarGrid inherits Rectangle {
     callback day_clicked(int, int, int);
 
     width: CalendarSpacingConfig.cell_size * 7 + CalendarSpacingConfig.gap * 6;
-    height: CalendarSpacingConfig.header_height + 1px + CalendarSpacingConfig.header_grid_gap + CalendarSpacingConfig.cell_size * 6 + CalendarSpacingConfig.gap * 7;
+    height: CalendarSpacingConfig.header_height + 1px + CalendarSpacingConfig.header_grid_gap * 2 + CalendarSpacingConfig.cell_size * 6 + CalendarSpacingConfig.gap * 7;
 
     VerticalLayout {
-        spacing: 0px;
+        spacing: CalendarSpacingConfig.header_grid_gap;
         alignment: start;
 
         HorizontalLayout {
             spacing: CalendarSpacingConfig.gap;
             height: CalendarSpacingConfig.header_height;
 
-            for i in 7: WeekdayLabel {
+            for i in 7: CalendarWeekdayLabel {
                 property <int> actual_day: Math.mod(root.week_start_day + i, 7);
                 horizontal-stretch: 1;
                 text: weekdays.label[i];
@@ -34,11 +34,6 @@ export component CalendarGrid inherits Rectangle {
             height: 1px;
             width: 100%;
             background: Fluent2Palette.divider;
-        }
-
-        Rectangle {
-            height: CalendarSpacingConfig.header_grid_gap;
-            background: transparent;
         }
 
         GridLayout {

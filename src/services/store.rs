@@ -5,17 +5,11 @@ use std::fs;
 use std::path::PathBuf;
 
 use crate::models::{TodoItem, TodoModel};
+use crate::util;
 
 /// 获取 todo 存储文件路径
 fn store_path() -> PathBuf {
-    let dir = if cfg!(debug_assertions) {
-        PathBuf::from(".")
-    } else {
-        dirs::config_dir()
-            .unwrap_or_else(|| PathBuf::from("."))
-            .join("calendar")
-    };
-    dir.join("todos.json")
+    util::config_dir().join("todos.json")
 }
 
 /// 可序列化的存储格式

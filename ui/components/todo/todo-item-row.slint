@@ -1,4 +1,4 @@
-import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
+import { Fluent2Palette } from "../../theme/fluent2-tokens.slint";
 
 export component TodoItemRow inherits Rectangle {
     in property <int> item_id;
@@ -22,6 +22,8 @@ export component TodoItemRow inherits Rectangle {
         height: 100%;
         border-radius: 6px;
         background: hover_area.has-hover ? Fluent2Palette.accent_light : root.row_bg_color;
+
+        animate background { duration: 150ms; }
     }
 
     hover_area := TouchArea { }
@@ -42,7 +44,7 @@ export component TodoItemRow inherits Rectangle {
             y: (parent.height - self.height) / 2;
 
             Image {
-                source: @image-url("../icons/check.svg");
+                source: @image-url("../../icons/check.svg");
                 width: 12px;
                 height: 12px;
                 colorize: Fluent2Palette.text_on_accent;
@@ -53,6 +55,10 @@ export component TodoItemRow inherits Rectangle {
                 clicked => { root.toggle(root.item_id); }
                 mouse-cursor: pointer;
             }
+
+            accessible-role: checkbox;
+            accessible-label: root.item_text;
+            accessible-checked: root.item_completed;
         }
 
         // 文本
@@ -74,7 +80,7 @@ export component TodoItemRow inherits Rectangle {
             y: (parent.height - self.height) / 2;
 
             Image {
-                source: @image-url("../icons/close.svg");
+                source: @image-url("../../icons/close.svg");
                 width: 14px;
                 height: 14px;
                 colorize: Fluent2Palette.text_secondary;
@@ -84,6 +90,9 @@ export component TodoItemRow inherits Rectangle {
                 clicked => { root.delete(root.item_id); }
                 mouse-cursor: pointer;
             }
+
+            accessible-role: button;
+            accessible-label: "删除";
         }
     }
 }

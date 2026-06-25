@@ -42,48 +42,42 @@ pub fn register_todo_callbacks(
     let m = Rc::clone(model);
     let cm = Rc::clone(calendar_model);
     global.on_add_todo(move |text| {
-        if let Some(ui) = weak.upgrade() {
-            let result = { m.borrow_mut().add_todo(text.to_string()) };
+        super::with_ui(&weak, |ui| {
+            let result = m.borrow_mut().add_todo(text.to_string());
             if result.todo_dates_changed {
                 let dates = m.borrow().todo_date_set();
-                {
-                    cm.borrow_mut().set_todo_dates(dates);
-                }
-                super::calendar::refresh_calendar_ui(&ui, &cm.borrow());
+                cm.borrow_mut().set_todo_dates(dates);
+                super::calendar::refresh_calendar_ui(ui, &cm.borrow());
             }
             if result.changed {
-                refresh_todo_ui(&ui, &m.borrow());
+                refresh_todo_ui(ui, &m.borrow());
             }
-        }
+        });
     });
 
     let weak = ui.as_weak();
     let m = Rc::clone(model);
     global.on_toggle_todo(move |id| {
-        if let Some(ui) = weak.upgrade() {
-            {
-                m.borrow_mut().toggle_todo(id as u32);
-            }
-            refresh_todo_ui(&ui, &m.borrow());
-        }
+        super::with_ui(&weak, |ui| {
+            m.borrow_mut().toggle_todo(id as u32);
+            refresh_todo_ui(ui, &m.borrow());
+        });
     });
 
     let weak = ui.as_weak();
     let m = Rc::clone(model);
     let cm = Rc::clone(calendar_model);
     global.on_delete_todo(move |id| {
-        if let Some(ui) = weak.upgrade() {
-            let result = { m.borrow_mut().delete_todo(id as u32) };
+        super::with_ui(&weak, |ui| {
+            let result = m.borrow_mut().delete_todo(id as u32);
             if result.todo_dates_changed {
                 let dates = m.borrow().todo_date_set();
-                {
-                    cm.borrow_mut().set_todo_dates(dates);
-                }
-                super::calendar::refresh_calendar_ui(&ui, &cm.borrow());
+                cm.borrow_mut().set_todo_dates(dates);
+                super::calendar::refresh_calendar_ui(ui, &cm.borrow());
             }
             if result.changed {
-                refresh_todo_ui(&ui, &m.borrow());
+                refresh_todo_ui(ui, &m.borrow());
             }
-        }
+        });
     });
 }

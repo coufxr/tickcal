@@ -1,0 +1,33 @@
+import { Fluent2Palette } from "../../theme/fluent2-tokens.slint";
+
+export component NavButton inherits Rectangle {
+    in property <length> btn_size: 36px;
+    in property <image> icon;
+    in property <string> tooltip;
+
+    callback clicked();
+
+    width: btn_size;
+    height: btn_size;
+    border-radius: 4px;
+    background: touch.has-hover ? Fluent2Palette.btn_hover : Fluent2Palette.btn_bg;
+
+    animate background { duration: 150ms; }
+
+    if icon != @image-url(""): Image {
+        source: icon;
+        width: 16px;
+        height: 16px;
+        colorize: Fluent2Palette.text_secondary;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+        mouse-cursor: pointer;
+    }
+
+    accessible-role: button;
+    accessible-label: root.tooltip;
+}

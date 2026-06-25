@@ -1,5 +1,7 @@
 import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
 import { CalendarSpacingConfig, CalendarSettings } from "../config/calendar-config.slint";
+import { SettingsButton } from "./common/settings-button.slint";
+import { IconButton } from "./common/icon-button.slint";
 
 export component SettingsDialog inherits Rectangle {
     in property <bool> is_open;
@@ -44,25 +46,10 @@ export component SettingsDialog inherits Rectangle {
                     color: Fluent2Palette.text_primary;
                 }
 
-                Rectangle {
-                    width: 28px;
-                    height: 28px;
-                    border-radius: 4px;
-                    background: close_btn.has-hover ? Fluent2Palette.btn_hover : Fluent2Palette.btn_bg;
-
-                    Image {
-                        source: @image-url("../icons/close.svg");
-                        width: 14px;
-                        height: 14px;
-                        colorize: Fluent2Palette.text_secondary;
-                        horizontal-alignment: center;
-                        vertical-alignment: center;
-                    }
-
-                    close_btn := TouchArea {
-                        clicked => { root.close(); }
-                        mouse-cursor: pointer;
-                    }
+                IconButton {
+                    icon: @image-url("../icons/close.svg");
+                    label: "关闭";
+                    clicked => { root.close(); }
                 }
             }
 
@@ -79,42 +66,16 @@ export component SettingsDialog inherits Rectangle {
                 HorizontalLayout {
                     spacing: 8px;
 
-                    Rectangle {
-                        width: 120px;
-                        height: 32px;
-                        border-radius: 4px;
-                        background: !Fluent2Palette.dark_mode ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
-
-                        Text {
-                            text: "浅色";
-                            color: !Fluent2Palette.dark_mode ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
-                            font-size: 13px;
-                            horizontal-alignment: center;
-                            vertical-alignment: center;
-                        }
-
-                        TouchArea {
-                            clicked => { root.dark_mode_changed(false); }
-                        }
+                    SettingsButton {
+                        text: "浅色";
+                        is_selected: !Fluent2Palette.dark_mode;
+                        clicked => { root.dark_mode_changed(false); }
                     }
 
-                    Rectangle {
-                        width: 120px;
-                        height: 32px;
-                        border-radius: 4px;
-                        background: Fluent2Palette.dark_mode ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
-
-                        Text {
-                            text: "深色";
-                            color: Fluent2Palette.dark_mode ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
-                            font-size: 13px;
-                            horizontal-alignment: center;
-                            vertical-alignment: center;
-                        }
-
-                        TouchArea {
-                            clicked => { root.dark_mode_changed(true); }
-                        }
+                    SettingsButton {
+                        text: "深色";
+                        is_selected: Fluent2Palette.dark_mode;
+                        clicked => { root.dark_mode_changed(true); }
                     }
                 }
             }
@@ -132,42 +93,16 @@ export component SettingsDialog inherits Rectangle {
                 HorizontalLayout {
                     spacing: 8px;
 
-                    Rectangle {
-                        width: 120px;
-                        height: 32px;
-                        border-radius: 4px;
-                        background: CalendarSettings.week_start_day == 0 ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
-
-                        Text {
-                            text: "星期日";
-                            color: CalendarSettings.week_start_day == 0 ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
-                            font-size: 13px;
-                            horizontal-alignment: center;
-                            vertical-alignment: center;
-                        }
-
-                        TouchArea {
-                            clicked => { root.week_start_changed(0); }
-                        }
+                    SettingsButton {
+                        text: "星期日";
+                        is_selected: CalendarSettings.week_start_day == 0;
+                        clicked => { root.week_start_changed(0); }
                     }
 
-                    Rectangle {
-                        width: 120px;
-                        height: 32px;
-                        border-radius: 4px;
-                        background: CalendarSettings.week_start_day == 1 ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
-
-                        Text {
-                            text: "星期一";
-                            color: CalendarSettings.week_start_day == 1 ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
-                            font-size: 13px;
-                            horizontal-alignment: center;
-                            vertical-alignment: center;
-                        }
-
-                        TouchArea {
-                            clicked => { root.week_start_changed(1); }
-                        }
+                    SettingsButton {
+                        text: "星期一";
+                        is_selected: CalendarSettings.week_start_day == 1;
+                        clicked => { root.week_start_changed(1); }
                     }
                 }
             }
@@ -195,9 +130,15 @@ export component SettingsDialog inherits Rectangle {
                         border-width: CalendarSettings.color_scheme_index == color_idx ? 3px : 0px;
                         border-color: Fluent2Palette.text_primary;
 
+                        animate border-width { duration: 150ms; }
+
                         TouchArea {
                             clicked => { if (color_idx < Fluent2Palette.accent_colors.length) { root.accent_changed(color_idx); } }
+                            mouse-cursor: pointer;
                         }
+
+                        accessible-role: button;
+                        accessible-label: "主题色 " + (color_idx + 1);
                     }
                 }
             }
@@ -215,61 +156,25 @@ export component SettingsDialog inherits Rectangle {
                 HorizontalLayout {
                     spacing: 8px;
 
-                    Rectangle {
-                        width: 80px;
-                        height: 32px;
-                        border-radius: 4px;
-                        background: CalendarSettings.cell_size_index == 0 ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
-
-                        Text {
-                            text: "小";
-                            color: CalendarSettings.cell_size_index == 0 ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
-                            font-size: 13px;
-                            horizontal-alignment: center;
-                            vertical-alignment: center;
-                        }
-
-                        TouchArea {
-                            clicked => { root.cell_size_changed(0); }
-                        }
+                    SettingsButton {
+                        text: "小";
+                        btn_width: 80px;
+                        is_selected: CalendarSettings.cell_size_index == 0;
+                        clicked => { root.cell_size_changed(0); }
                     }
 
-                    Rectangle {
-                        width: 80px;
-                        height: 32px;
-                        border-radius: 4px;
-                        background: CalendarSettings.cell_size_index == 1 ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
-
-                        Text {
-                            text: "中";
-                            color: CalendarSettings.cell_size_index == 1 ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
-                            font-size: 13px;
-                            horizontal-alignment: center;
-                            vertical-alignment: center;
-                        }
-
-                        TouchArea {
-                            clicked => { root.cell_size_changed(1); }
-                        }
+                    SettingsButton {
+                        text: "中";
+                        btn_width: 80px;
+                        is_selected: CalendarSettings.cell_size_index == 1;
+                        clicked => { root.cell_size_changed(1); }
                     }
 
-                    Rectangle {
-                        width: 80px;
-                        height: 32px;
-                        border-radius: 4px;
-                        background: CalendarSettings.cell_size_index == 2 ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
-
-                        Text {
-                            text: "大";
-                            color: CalendarSettings.cell_size_index == 2 ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
-                            font-size: 13px;
-                            horizontal-alignment: center;
-                            vertical-alignment: center;
-                        }
-
-                        TouchArea {
-                            clicked => { root.cell_size_changed(2); }
-                        }
+                    SettingsButton {
+                        text: "大";
+                        btn_width: 80px;
+                        is_selected: CalendarSettings.cell_size_index == 2;
+                        clicked => { root.cell_size_changed(2); }
                     }
                 }
             }

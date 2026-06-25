@@ -5,11 +5,20 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use slint::Weak;
+
 use crate::AppWindow;
 use crate::models::{CalendarModel, TodoModel};
 
 pub mod calendar;
 pub mod todo;
+
+/// 安全地升级 Weak<AppWindow> 并执行闭包
+fn with_ui<F: FnOnce(&AppWindow)>(weak: &Weak<AppWindow>, f: F) {
+    if let Some(ui) = weak.upgrade() {
+        f(&ui);
+    }
+}
 
 /// 初始化应用逻辑：刷新 UI + 注册回调
 pub fn init(

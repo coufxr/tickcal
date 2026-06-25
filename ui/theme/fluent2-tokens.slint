@@ -10,10 +10,18 @@ export global Fluent2Palette {
     ];
 
     // Light accent variants (selected day bg, selection highlight)
+    // Fluent2 规范：选中背景为品牌色 10-15% 不透明度
     in-out property <[color]> accent_light_colors: [
-        #CCE4F7, #B3DAE0, #D4D2D1, #C8C8C8,
-        #FFE0B2, #FEC7C7, #B3D4E8, #CBC8EF,
-        #B3DFDF, #B3E8DC, #EAB3E8, #D9B3D6
+        #B8DAF0, #9CCDD6, #C0BDBB, #B0B0B0,
+        #FFD499, #FDB3B3, #9AC4DE, #B5B0E8,
+        #9AD0D0, #9ADFCE, #E29BE2, #CE9BCB
+    ];
+
+    // Lighter accent variants (hover on selected day, lighter than accent_light)
+    in-out property <[color]> accent_lighter_colors: [
+        #D6ECF4, #C5E3EB, #DAD8D7, #CCCCCC,
+        #FFE8C2, #FDDCDC, #C5DBF0, #D4D0F2,
+        #C5E8E8, #C5F0E4, #F0D4F0, #E2CDE0
     ];
 
     // Dark accent variants (hover)
@@ -26,6 +34,7 @@ export global Fluent2Palette {
     // Derived accent colors (reactive to dark_mode + selected_accent_index)
     in-out property <color> accent: dark_mode ? accent_dark_colors[Math.mod(selected_accent_index, accent_dark_colors.length)] : accent_colors[Math.mod(selected_accent_index, accent_colors.length)];
     in-out property <color> accent_light: accent_light_colors[Math.mod(selected_accent_index, accent_light_colors.length)];
+    in-out property <color> accent_lighter: accent_lighter_colors[Math.mod(selected_accent_index, accent_lighter_colors.length)];
     in-out property <color> accent_hover: dark_mode ? accent_light_colors[Math.mod(selected_accent_index, accent_light_colors.length)] : accent_dark_colors[Math.mod(selected_accent_index, accent_dark_colors.length)];
     in-out property <color> text_on_accent: #FFFFFF;
 

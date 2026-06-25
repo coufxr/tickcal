@@ -1,0 +1,32 @@
+import { Fluent2Palette } from "../../theme/fluent2-tokens.slint";
+
+export component SettingsButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> is_selected: false;
+    in property <length> btn_width: 120px;
+
+    callback clicked();
+
+    width: root.btn_width;
+    height: 32px;
+    border-radius: 4px;
+    background: is_selected ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
+
+    animate background { duration: 200ms; }
+
+    Text {
+        text: root.text;
+        color: is_selected ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
+        font-size: 13px;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    TouchArea {
+        clicked => { root.clicked(); }
+        mouse-cursor: pointer;
+    }
+
+    accessible-role: button;
+    accessible-label: root.text;
+}

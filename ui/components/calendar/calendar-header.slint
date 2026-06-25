@@ -1,0 +1,79 @@
+import { Fluent2Palette } from "../../theme/fluent2-tokens.slint";
+import { CalendarSpacingConfig } from "../../config/calendar-config.slint";
+import { NavButton } from "../common/nav-button.slint";
+
+export component CalendarHeader inherits Rectangle {
+    in property <int> year;
+    in property <int> month;
+
+    callback prev_month();
+    callback next_month();
+    callback go_today();
+
+    width: CalendarSpacingConfig.cell_size * 7 + CalendarSpacingConfig.gap * 6;
+    height: CalendarSpacingConfig.nav_height;
+
+    HorizontalLayout {
+        spacing: CalendarSpacingConfig.nav_spacing;
+        alignment: space-between;
+
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+
+            Text {
+                text: root.year + "年" + root.month + "月";
+                font-size: 24px;
+                font-weight: 600;
+                color: Fluent2Palette.text_primary;
+                vertical-alignment: center;
+            }
+        }
+
+        HorizontalLayout {
+            spacing: 4px;
+            alignment: end;
+
+            // 今天按钮（纯文字）
+            Rectangle {
+                width: CalendarSpacingConfig.nav_btn_today_width;
+                height: CalendarSpacingConfig.nav_btn_size;
+                border-radius: 4px;
+                background: today_touch.has-hover ? Fluent2Palette.btn_hover : Fluent2Palette.btn_bg;
+
+                animate background { duration: 150ms; }
+
+                Text {
+                    text: "今天";
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: Fluent2Palette.accent;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+
+                today_touch := TouchArea {
+                    clicked => { root.go_today(); }
+                    mouse-cursor: pointer;
+                }
+
+                accessible-role: button;
+                accessible-label: "今天";
+            }
+
+            NavButton {
+                btn_size: CalendarSpacingConfig.nav_btn_size;
+                icon: @image-url("../../icons/chevron-left.svg");
+                tooltip: "上一月";
+                clicked => { root.prev_month(); }
+            }
+
+            NavButton {
+                btn_size: CalendarSpacingConfig.nav_btn_size;
+                icon: @image-url("../../icons/chevron-right.svg");
+                tooltip: "下一月";
+                clicked => { root.next_month(); }
+            }
+        }
+    }
+}

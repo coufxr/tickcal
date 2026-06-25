@@ -11,6 +11,7 @@ mod model;
 mod models;
 mod services;
 mod settings;
+mod util;
 
 use models::{CalendarModel, TodoModel};
 

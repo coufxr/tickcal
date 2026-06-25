@@ -66,64 +66,52 @@ pub fn register_calendar_callbacks(
     let weak = ui.as_weak();
     let m = Rc::clone(model);
     ui.on_prev_month(move || {
-        if let Some(ui) = weak.upgrade() {
-            {
-                m.borrow_mut().shift_month(-1);
-            }
-            refresh_calendar_ui(&ui, &m.borrow());
-        }
+        super::with_ui(&weak, |ui| {
+            m.borrow_mut().shift_month(-1);
+            refresh_calendar_ui(ui, &m.borrow());
+        });
     });
 
     let weak = ui.as_weak();
     let m = Rc::clone(model);
     ui.on_next_month(move || {
-        if let Some(ui) = weak.upgrade() {
-            {
-                m.borrow_mut().shift_month(1);
-            }
-            refresh_calendar_ui(&ui, &m.borrow());
-        }
+        super::with_ui(&weak, |ui| {
+            m.borrow_mut().shift_month(1);
+            refresh_calendar_ui(ui, &m.borrow());
+        });
     });
 
     let weak = ui.as_weak();
     let m = Rc::clone(model);
     ui.on_go_today(move || {
-        if let Some(ui) = weak.upgrade() {
-            {
-                m.borrow_mut().go_today();
-            }
-            refresh_calendar_ui(&ui, &m.borrow());
-        }
+        super::with_ui(&weak, |ui| {
+            m.borrow_mut().go_today();
+            refresh_calendar_ui(ui, &m.borrow());
+        });
     });
 
     let weak = ui.as_weak();
     let m = Rc::clone(model);
     let tm = Rc::clone(todo_model);
     ui.on_day_clicked(move |year, month, day| {
-        if let Some(ui) = weak.upgrade() {
-            {
-                let mut model = m.borrow_mut();
-                model.select_day(year as isize, month as usize, day as usize);
-            }
-            refresh_calendar_ui(&ui, &m.borrow());
+        super::with_ui(&weak, |ui| {
+            m.borrow_mut()
+                .select_day(year as isize, month as usize, day as usize);
+            refresh_calendar_ui(ui, &m.borrow());
 
             // 跨模块：通知 todo 选中日期变更
             let date = format!("{:04}-{:02}-{:02}", year, month, day);
-            {
-                tm.borrow_mut().select_date(date);
-            }
-            super::todo::refresh_todo_ui(&ui, &tm.borrow());
-        }
+            tm.borrow_mut().select_date(date);
+            super::todo::refresh_todo_ui(ui, &tm.borrow());
+        });
     });
 
     let weak = ui.as_weak();
     let m = Rc::clone(model);
     ui.on_week_start_changed(move |day| {
-        if let Some(ui) = weak.upgrade() {
-            {
-                m.borrow_mut().week_start_day = day as usize;
-            }
-            refresh_calendar_ui(&ui, &m.borrow());
-        }
+        super::with_ui(&weak, |ui| {
+            m.borrow_mut().week_start_day = day as usize;
+            refresh_calendar_ui(ui, &m.borrow());
+        });
     });
 }

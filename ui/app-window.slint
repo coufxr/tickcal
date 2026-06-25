@@ -1,6 +1,6 @@
 import { CalendarMonth, WeekdayRow } from "./types/calendar-types.slint";
-import { CalendarView } from "./components/calendar-view.slint";
-import { TodoPanel } from "./components/todo-panel.slint";
+import { CalendarView } from "./components/calendar/calendar-view.slint";
+import { TodoPanel } from "./components/todo/todo-panel.slint";
 import { MenuBar } from "./components/menu-bar.slint";
 import { SettingsDialog } from "./components/settings-dialog.slint";
 import { Fluent2Palette } from "./theme/fluent2-tokens.slint";
@@ -32,11 +32,8 @@ export component AppWindow inherits Window {
     callback open_settings();
     callback week_start_changed(int);
 
-    // 单元格大小计算属性（索引 → 像素值的唯一映射源）
-    property <length> computed_cell_size: CalendarSettings.cell_size_index == 0 ? 56px : CalendarSettings.cell_size_index == 2 ? 88px : 72px;
-    changed computed_cell_size => {
-        CalendarSpacingConfig.cell_size = self.computed_cell_size;
-    }
+    // 单元格大小映射：index → 像素值
+    property <[length]> cell_size_values: [56px, 72px, 88px];
 
     // 设置持久化：Rust 端在启动时调用此回调，将保存的设置推送到 UI 全局变量
     callback apply_settings(bool, int, int, int);
@@ -46,6 +43,7 @@ export component AppWindow inherits Window {
         CalendarSettings.color_scheme_index = ai;
         CalendarSettings.week_start_day = ws;
         CalendarSettings.cell_size_index = cs;
+        CalendarSpacingConfig.cell_size = root.cell_size_values[cs];
     }
 
     // 只读代理属性：Rust 端在窗口关闭时读取这些值并保存到磁盘
@@ -120,9 +118,10 @@ export component AppWindow inherits Window {
             CalendarSettings.color_scheme_index = idx;
             Fluent2Palette.selected_accent_index = idx;
         }
-        // 单元格大小变更：只需更新索引，computed_cell_size 属性会自动同步到 CalendarSpacingConfig
+        // 单元格大小变更：更新索引 + 直接同步到间距配置
         cell_size_changed(idx) => {
             CalendarSettings.cell_size_index = idx;
+            CalendarSpacingConfig.cell_size = root.cell_size_values[idx];
         }
         // 深色模式切换
         dark_mode_changed(dark) => {
