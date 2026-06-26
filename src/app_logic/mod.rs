@@ -5,7 +5,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use slint::Weak;
+use slint::{ComponentHandle, Weak};
 
 use crate::AppWindow;
 use crate::models::{CalendarModel, TodoModel};
@@ -33,4 +33,29 @@ pub fn init(
     // 注册回调
     calendar::register_calendar_callbacks(ui, calendar_model, todo_model);
     todo::register_todo_callbacks(ui, todo_model, calendar_model);
+
+    // 设置版本号
+    ui.set_app_version(env!("CARGO_PKG_VERSION").into());
+
+    // 菜单栏回调
+    let weak = ui.as_weak();
+    ui.on_quit(move || {
+        if let Some(ui) = weak.upgrade() {
+            ui.window().hide().ok();
+        }
+    });
+
+    let weak = ui.as_weak();
+    ui.on_open_settings(move || {
+        if let Some(ui) = weak.upgrade() {
+            ui.set_settings_open(true);
+        }
+    });
+
+    let weak = ui.as_weak();
+    ui.on_about(move || {
+        if let Some(ui) = weak.upgrade() {
+            ui.set_about_open(true);
+        }
+    });
 }

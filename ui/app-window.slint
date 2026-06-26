@@ -1,8 +1,8 @@
 import { CalendarMonth, WeekdayRow } from "./types/calendar-types.slint";
 import { CalendarView } from "./components/calendar/calendar-view.slint";
 import { TodoPanel } from "./components/todo/todo-panel.slint";
-import { MenuBar } from "./components/menu-bar.slint";
 import { SettingsDialog } from "./components/settings-dialog.slint";
+import { AboutDialog } from "./components/about-dialog.slint";
 import { FluentTokens } from "./theme/fluent-tokens.slint";
 import { ThemeState } from "./theme/theme-state.slint";
 import {
@@ -10,6 +10,7 @@ import {
     CalendarSpacingConfig,
 } from "./config/calendar-config.slint";
 import { TodoState } from "./globals/todo-state.slint";
+
 
 export component AppWindow inherits Window {
     title: "Calendar";
@@ -22,14 +23,18 @@ export component AppWindow inherits Window {
     // 月视图数据和星期标题行（由 Rust 端设置）
     in-out property <CalendarMonth> month_data;
     in-out property <WeekdayRow> weekdays;
-    // 设置对话框是否打开
+    // 对话框状态
     in-out property <bool> settings_open: false;
+    in-out property <bool> about_open: false;
+    in-out property <string> app_version: "0.1.0";
 
     // 日历导航回调
     callback prev_month();
     callback next_month();
     callback go_today();
     callback day_clicked(int, int, int);
+    callback quit();
+    callback about();
     callback open_settings();
     callback week_start_changed(int);
 
@@ -53,13 +58,31 @@ export component AppWindow inherits Window {
     out property <int> persisted_week_start_day: CalendarSettings.week_start_day;
     out property <int> persisted_cell_size_index: CalendarSettings.cell_size_index;
 
-    VerticalLayout {
-        MenuBar {
-            open_settings => {
-                root.settings_open = true;
+    // ─── 原生菜单栏 ───
+    MenuBar {
+        Menu {
+            title: @tr("文件");
+            MenuItem {
+                title: @tr("设置...");
+                activated => { root.open_settings(); }
+            }
+            MenuSeparator {}
+            MenuItem {
+                title: @tr("退出");
+                activated => { root.quit(); }
             }
         }
+        Menu {
+            title: @tr("帮助");
+            MenuItem {
+                title: @tr("关于");
+                activated => { root.about(); }
+            }
+        }
+    }
 
+    // ─── 窗口内容区域 ───
+    VerticalLayout {
         HorizontalLayout {
             vertical-stretch: 1;
 
@@ -103,31 +126,34 @@ export component AppWindow inherits Window {
         }
     }
 
-    // 设置对话框
+    // ─── 设置对话框 ───
     SettingsDialog {
         is_open: root.settings_open;
         close => {
             root.settings_open = false;
         }
-        // 每周起始日变更：更新配置 + 通知 Rust 端重建日历
         week_start_changed(day) => {
             CalendarSettings.week_start_day = day;
             root.week_start_changed(day);
         }
-        // 主题色变更：同步更新两个全局变量（color_scheme_index 供设置对话框高亮用，selected_accent_index 供主题渲染用）
         accent_changed(idx) => {
             CalendarSettings.color_scheme_index = idx;
             FluentTokens.selected_accent_index = idx;
         }
-        // 单元格大小变更：更新索引 + 直接同步到间距配置
         cell_size_changed(idx) => {
             CalendarSettings.cell_size_index = idx;
             CalendarSpacingConfig.cell_size = root.cell_size_values[idx];
         }
-        // 深色模式切换
         dark_mode_changed(dark) => {
             ThemeState.dark = dark;
         }
+    }
+
+    // ─── 关于对话框 ───
+    AboutDialog {
+        is_open: root.about_open;
+        version: root.app_version;
+        close => { root.about_open = false; }
     }
 }
 

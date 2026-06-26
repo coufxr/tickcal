@@ -1,0 +1,90 @@
+import { FluentTokens } from "../theme/fluent-tokens.slint";
+import { IconButton } from "./common/icon-button.slint";
+
+export component AboutDialog inherits Rectangle {
+    in property <bool> is_open;
+    in property <string> version;
+
+    callback close();
+
+    visible: is_open;
+
+    Rectangle {
+        background: FluentTokens.overlay;
+
+        TouchArea {
+            clicked => { root.close(); }
+        }
+    }
+
+    Rectangle {
+        width: 360px;
+        height: 220px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        background: FluentTokens.neutral_bg_1;
+        border-radius: FluentTokens.border_radius_x_large;
+        border-width: 1px;
+        border-color: FluentTokens.neutral_stroke_2;
+
+        drop-shadow-color: FluentTokens.shadow_key;
+        drop-shadow-blur: FluentTokens.shadow_16_blur;
+        drop-shadow-offset-y: FluentTokens.shadow_16_offset;
+
+        VerticalLayout {
+            padding: 24px;
+            spacing: FluentTokens.spacing_xl;
+
+            HorizontalLayout {
+                alignment: space-between;
+
+                Text {
+                    text: "关于";
+                    font-size: FluentTokens.font_size_500;
+                    font-weight: FluentTokens.font_weight_bold;
+                    color: FluentTokens.neutral_fg_1;
+                }
+
+                IconButton {
+                    icon: @image-url("../icons/close.svg");
+                    label: "关闭";
+                    clicked => { root.close(); }
+                }
+            }
+
+            VerticalLayout {
+                spacing: FluentTokens.spacing_s;
+
+                Text {
+                    text: "Calendar";
+                    font-size: FluentTokens.font_size_600;
+                    font-weight: FluentTokens.font_weight_bold;
+                    color: FluentTokens.brand_bg;
+                    horizontal-alignment: center;
+                }
+
+                Text {
+                    text: "v" + root.version;
+                    font-size: FluentTokens.font_size_300;
+                    color: FluentTokens.neutral_fg_2;
+                    horizontal-alignment: center;
+                }
+
+                Text {
+                    text: "一个基于 Fluent 2 设计的日历应用";
+                    font-size: FluentTokens.font_size_300;
+                    color: FluentTokens.neutral_fg_2;
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                }
+
+                Text {
+                    text: "Powered by Slint";
+                    font-size: FluentTokens.font_size_200;
+                    color: FluentTokens.neutral_fg_3;
+                    horizontal-alignment: center;
+                }
+            }
+        }
+    }
+}
