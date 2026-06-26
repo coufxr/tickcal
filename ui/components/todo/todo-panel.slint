@@ -28,7 +28,7 @@ export component TodoPanel inherits Rectangle {
         // 输入区域
         TodoInput {
             selected_date: TodoState.selected_date;
-            status_text: TodoState.status_text;
+            status_text <=> TodoState.status_text;
             add_todo(text) => { TodoState.add_todo(text); }
         }
 

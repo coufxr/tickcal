@@ -18,6 +18,7 @@ target/
 rust-project.json
 
 settings.toml
+calendar.db
 
 .idea/
 .claude/
