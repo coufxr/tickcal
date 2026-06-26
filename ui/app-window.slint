@@ -1,6 +1,6 @@
 import { CalendarMonth, WeekdayRow } from "./types/calendar-types.slint";
 import { CalendarView } from "./components/calendar/calendar-view.slint";
-import { TodoPanel } from "./components/todo/todo-panel.slint";
+import { TaskPanel } from "./components/task/task-panel.slint";
 import { SettingsDialog } from "./components/settings-dialog.slint";
 import { AboutDialog } from "./components/about-dialog.slint";
 import { FluentTokens } from "./theme/fluent-tokens.slint";
@@ -9,7 +9,7 @@ import {
     CalendarSettings,
     CalendarSpacingConfig,
 } from "./config/calendar-config.slint";
-import { TodoState } from "./globals/todo-state.slint";
+import { TaskState } from "./globals/task-state.slint";
 
 
 export component AppWindow inherits Window {
@@ -113,7 +113,7 @@ export component AppWindow inherits Window {
                 }
             }
 
-            // 右侧：Todo 面板
+            // 右侧：Task 面板
             Rectangle {
                 background: FluentTokens.neutral_bg_2;
                 border-width: 1px;
@@ -121,7 +121,7 @@ export component AppWindow inherits Window {
                 min-width: 320px;
                 horizontal-stretch: 1;
 
-                TodoPanel { }
+                TaskPanel { }
             }
         }
     }
@@ -157,4 +157,4 @@ export component AppWindow inherits Window {
     }
 }
 
-export { TodoState }
+export { TaskState }

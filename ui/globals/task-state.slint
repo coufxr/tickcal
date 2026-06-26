@@ -1,0 +1,11 @@
+import { TaskItem } from "../types/task-types.slint";
+
+export global TaskState {
+    in-out property <string> selected_date;
+    in-out property <[TaskItem]> task_items;
+    in-out property <string> status_text;
+
+    callback add_task(string);
+    callback toggle_task(int);
+    callback delete_task(int);
+}

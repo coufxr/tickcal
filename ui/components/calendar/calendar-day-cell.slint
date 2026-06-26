@@ -8,7 +8,7 @@ export component CalendarDayCell inherits Rectangle {
     in property <bool> is_selected;
     in property <bool> is_current_month;
     in property <bool> is_weekend;
-    in property <bool> has_todo;
+    in property <bool> has_task;
 
     border-radius: FluentTokens.border_radius_medium;
 
@@ -35,7 +35,7 @@ export component CalendarDayCell inherits Rectangle {
             : FluentTokens.neutral_fg_3;
     }
 
-    if has_todo: Rectangle {
+    if has_task: Rectangle {
         width: 6px;
         height: 6px;
         border-radius: 3px;

@@ -1,9 +1,9 @@
-import { TodoState } from "../../globals/todo-state.slint";
+import { TaskState } from "../../globals/task-state.slint";
 import { FluentTokens } from "../../theme/fluent-tokens.slint";
-import { TodoInput } from "./todo-input.slint";
-import { TodoItemRow } from "./todo-item-row.slint";
+import { TaskInput } from "./task-input.slint";
+import { TaskItemRow } from "./task-item-row.slint";
 
-export component TodoPanel inherits Rectangle {
+export component TaskPanel inherits Rectangle {
     background: transparent;
 
     VerticalLayout {
@@ -13,7 +13,7 @@ export component TodoPanel inherits Rectangle {
 
         // 标题
         Text {
-            text: TodoState.selected_date == "" ? "请选择日期" : TodoState.selected_date + " 的待办";
+            text: TaskState.selected_date == "" ? "请选择日期" : TaskState.selected_date + " 的待办";
             font-size: 18px;
             font-weight: 700;
             color: FluentTokens.neutral_fg_1;
@@ -26,41 +26,41 @@ export component TodoPanel inherits Rectangle {
         }
 
         // 输入区域
-        TodoInput {
-            selected_date: TodoState.selected_date;
-            status_text <=> TodoState.status_text;
-            add_todo(text) => { TodoState.add_todo(text); }
+        TaskInput {
+            selected_date: TaskState.selected_date;
+            status_text <=> TaskState.status_text;
+            add_task(text) => { TaskState.add_task(text); }
         }
 
         // 状态提示
-        if TodoState.status_text != "": Rectangle {
+        if TaskState.status_text != "": Rectangle {
             height: 28px;
             border-radius: FluentTokens.border_radius_small;
             background: FluentTokens.neutral_bg_2;
 
             Text {
                 x: 12px;
-                text: TodoState.status_text;
+                text: TaskState.status_text;
                 font-size: 12px;
                 color: FluentTokens.neutral_fg_2;
                 vertical-alignment: center;
             }
         }
 
-        // Todo 列表
+        // Task 列表
         Flickable {
             vertical-stretch: 1;
 
             VerticalLayout {
                 spacing: 2px;
 
-                for item[i] in TodoState.todo_items: TodoItemRow {
+                for item[i] in TaskState.task_items: TaskItemRow {
                     item_id: item.id;
                     item_text: item.text;
                     item_completed: item.completed;
                     row_index: i;
-                    toggle(id) => { TodoState.toggle_todo(id); }
-                    delete(id) => { TodoState.delete_todo(id); }
+                    toggle(id) => { TaskState.toggle_task(id); }
+                    delete(id) => { TaskState.delete_task(id); }
                 }
             }
         }

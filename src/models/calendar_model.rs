@@ -16,7 +16,7 @@ pub struct CalendarModel {
     /// 每周起始日（0=星期日，1=星期一）
     pub week_start_day: usize,
     /// 有待办的日期集合（格式 "YYYY-MM-DD"）
-    pub todo_dates: HashSet<String>,
+    pub task_dates: HashSet<String>,
 }
 
 impl CalendarModel {
@@ -27,7 +27,7 @@ impl CalendarModel {
             selected: today,
             today,
             week_start_day: 0,
-            todo_dates: HashSet::new(),
+            task_dates: HashSet::new(),
         }
     }
 
@@ -55,8 +55,8 @@ impl CalendarModel {
         self.week_start_day = settings.week_start_day as usize;
     }
 
-    /// 更新 todo 日期集合
-    pub fn set_todo_dates(&mut self, dates: HashSet<String>) {
-        self.todo_dates = dates;
+    /// 更新 task 日期集合
+    pub fn set_task_dates(&mut self, dates: HashSet<String>) {
+        self.task_dates = dates;
     }
 }

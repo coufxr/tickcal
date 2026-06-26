@@ -1,10 +1,10 @@
 import { FluentTokens } from "../../theme/fluent-tokens.slint";
 
-export component TodoInput inherits HorizontalLayout {
+export component TaskInput inherits HorizontalLayout {
     in property <string> selected_date;
     in-out property <string> status_text;
 
-    callback add_todo(string);
+    callback add_task(string);
 
     spacing: 8px;
     height: 36px;
@@ -28,7 +28,7 @@ export component TodoInput inherits HorizontalLayout {
                 if (root.selected_date == "") {
                     root.status_text = "请先选择一个日期";
                 } else if (self.text != "") {
-                    root.add_todo(self.text);
+                    root.add_task(self.text);
                     self.text = "";
                     root.status_text = "";
                 }
@@ -63,7 +63,7 @@ export component TodoInput inherits HorizontalLayout {
                 } else if (input.text == "") {
                     root.status_text = "请输入待办内容";
                 } else {
-                    root.add_todo(input.text);
+                    root.add_task(input.text);
                     input.text = "";
                     root.status_text = "";
                 }

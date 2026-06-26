@@ -53,7 +53,7 @@ export component CalendarGrid inherits Rectangle {
                 is_selected: day.is_selected;
                 is_current_month: day.is_current_month;
                 is_weekend: day.is_weekend;
-                has_todo: day.has_todo;
+                has_task: day.has_task;
                 clicked => { root.day_clicked(day.year, day.month, day.day); }
             }
         }

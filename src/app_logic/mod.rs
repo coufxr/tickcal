@@ -8,10 +8,10 @@ use std::rc::Rc;
 use slint::{ComponentHandle, Weak};
 
 use crate::AppWindow;
-use crate::models::{CalendarModel, TodoModel};
+use crate::models::{CalendarModel, TaskModel};
 
 pub mod calendar;
-pub mod todo;
+pub mod task;
 
 /// 安全地升级 Weak<AppWindow> 并执行闭包
 fn with_ui<F: FnOnce(&AppWindow)>(weak: &Weak<AppWindow>, f: F) {
@@ -24,15 +24,15 @@ fn with_ui<F: FnOnce(&AppWindow)>(weak: &Weak<AppWindow>, f: F) {
 pub fn init(
     ui: &AppWindow,
     calendar_model: &Rc<RefCell<CalendarModel>>,
-    todo_model: &Rc<RefCell<TodoModel>>,
+    task_model: &Rc<RefCell<TaskModel>>,
 ) {
     // 刷新 UI
     calendar::refresh_calendar_ui(ui, &calendar_model.borrow());
-    todo::refresh_todo_ui(ui, &todo_model.borrow());
+    task::refresh_task_ui(ui, &task_model.borrow());
 
     // 注册回调
-    calendar::register_calendar_callbacks(ui, calendar_model, todo_model);
-    todo::register_todo_callbacks(ui, todo_model, calendar_model);
+    calendar::register_calendar_callbacks(ui, calendar_model, task_model);
+    task::register_task_callbacks(ui, task_model, calendar_model);
 
     // 设置版本号
     ui.set_app_version(env!("CARGO_PKG_VERSION").into());

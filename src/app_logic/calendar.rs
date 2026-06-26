@@ -26,7 +26,7 @@ pub fn refresh_calendar_ui(ui: &AppWindow, model: &CalendarModel) {
             month_view
                 .days
                 .into_iter()
-                .map(|day| from_day_cell(day, &model.todo_dates))
+                .map(|day| from_day_cell(day, &model.task_dates))
                 .collect::<Vec<_>>(),
         )),
     });
@@ -43,7 +43,7 @@ pub fn refresh_calendar_ui(ui: &AppWindow, model: &CalendarModel) {
 }
 
 /// 将内部 DayCell 转换为 Slint 端的 CalendarDay
-fn from_day_cell(day: DayCell, todo_dates: &HashSet<String>) -> CalendarDay {
+fn from_day_cell(day: DayCell, task_dates: &HashSet<String>) -> CalendarDay {
     let date_key = format!("{:04}-{:02}-{:02}", day.year, day.month, day.day);
     CalendarDay {
         year: day.year as i32,
@@ -53,7 +53,7 @@ fn from_day_cell(day: DayCell, todo_dates: &HashSet<String>) -> CalendarDay {
         is_selected: day.is_selected,
         is_weekend: day.is_weekend,
         is_current_month: day.is_current_month,
-        has_todo: todo_dates.contains(&date_key),
+        has_task: task_dates.contains(&date_key),
     }
 }
 
@@ -61,7 +61,7 @@ fn from_day_cell(day: DayCell, todo_dates: &HashSet<String>) -> CalendarDay {
 pub fn register_calendar_callbacks(
     ui: &AppWindow,
     model: &Rc<RefCell<CalendarModel>>,
-    todo_model: &Rc<RefCell<crate::models::TodoModel>>,
+    task_model: &Rc<RefCell<crate::models::TaskModel>>,
 ) {
     let weak = ui.as_weak();
     let m = Rc::clone(model);
@@ -92,17 +92,17 @@ pub fn register_calendar_callbacks(
 
     let weak = ui.as_weak();
     let m = Rc::clone(model);
-    let tm = Rc::clone(todo_model);
+    let tm = Rc::clone(task_model);
     ui.on_day_clicked(move |year, month, day| {
         super::with_ui(&weak, |ui| {
             m.borrow_mut()
                 .select_day(year as isize, month as usize, day as usize);
             refresh_calendar_ui(ui, &m.borrow());
 
-            // 跨模块：通知 todo 选中日期变更
+            // 跨模块：通知 task 选中日期变更
             let date = format!("{:04}-{:02}-{:02}", year, month, day);
             tm.borrow_mut().select_date(date);
-            super::todo::refresh_todo_ui(ui, &tm.borrow());
+            super::task::refresh_task_ui(ui, &tm.borrow());
         });
     });
 
