@@ -1,4 +1,4 @@
-import { Fluent2Palette } from "../../theme/fluent2-tokens.slint";
+import { FluentTokens } from "../../theme/fluent-tokens.slint";
 
 export component NavButton inherits Rectangle {
     in property <length> btn_size: 36px;
@@ -9,8 +9,8 @@ export component NavButton inherits Rectangle {
 
     width: btn_size;
     height: btn_size;
-    border-radius: 4px;
-    background: touch.has-hover ? Fluent2Palette.btn_hover : Fluent2Palette.btn_bg;
+    border-radius: FluentTokens.border_radius_small;
+    background: touch.pressed ? FluentTokens.neutral_bg_1_pressed : touch.has-hover ? FluentTokens.neutral_bg_1_hover : FluentTokens.neutral_bg_1;
 
     animate background { duration: 150ms; }
 
@@ -18,7 +18,7 @@ export component NavButton inherits Rectangle {
         source: icon;
         width: 16px;
         height: 16px;
-        colorize: Fluent2Palette.text_secondary;
+        colorize: FluentTokens.neutral_fg_2;
         horizontal-alignment: center;
         vertical-alignment: center;
     }

@@ -3,7 +3,8 @@ import { CalendarView } from "./components/calendar/calendar-view.slint";
 import { TodoPanel } from "./components/todo/todo-panel.slint";
 import { MenuBar } from "./components/menu-bar.slint";
 import { SettingsDialog } from "./components/settings-dialog.slint";
-import { Fluent2Palette } from "./theme/fluent2-tokens.slint";
+import { FluentTokens } from "./theme/fluent-tokens.slint";
+import { ThemeState } from "./theme/theme-state.slint";
 import {
     CalendarSettings,
     CalendarSpacingConfig,
@@ -16,7 +17,7 @@ export component AppWindow inherits Window {
     preferred-height: 760px;
     min-width: 960px;
     min-height: 640px;
-    background: Fluent2Palette.surface_window;
+    background: FluentTokens.neutral_bg_1;
 
     // 月视图数据和星期标题行（由 Rust 端设置）
     in-out property <CalendarMonth> month_data;
@@ -38,8 +39,8 @@ export component AppWindow inherits Window {
     // 设置持久化：Rust 端在启动时调用此回调，将保存的设置推送到 UI 全局变量
     callback apply_settings(bool, int, int, int);
     apply_settings(da, ai, ws, cs) => {
-        Fluent2Palette.dark_mode = da;
-        Fluent2Palette.selected_accent_index = ai;
+        ThemeState.dark = da;
+        FluentTokens.selected_accent_index = ai;
         CalendarSettings.color_scheme_index = ai;
         CalendarSettings.week_start_day = ws;
         CalendarSettings.cell_size_index = cs;
@@ -47,8 +48,8 @@ export component AppWindow inherits Window {
     }
 
     // 只读代理属性：Rust 端在窗口关闭时读取这些值并保存到磁盘
-    out property <bool> persisted_dark_mode: Fluent2Palette.dark_mode;
-    out property <int> persisted_accent_index: Fluent2Palette.selected_accent_index;
+    out property <bool> persisted_dark_mode: ThemeState.dark;
+    out property <int> persisted_accent_index: FluentTokens.selected_accent_index;
     out property <int> persisted_week_start_day: CalendarSettings.week_start_day;
     out property <int> persisted_cell_size_index: CalendarSettings.cell_size_index;
 
@@ -65,7 +66,7 @@ export component AppWindow inherits Window {
             // 左侧：日历
             Rectangle {
                 width: CalendarSpacingConfig.cell_size * 7 + CalendarSpacingConfig.gap * 6 + CalendarSpacingConfig.view_padding * 2;
-                background: Fluent2Palette.surface_window;
+                background: FluentTokens.neutral_bg_1;
                 horizontal-stretch: 0;
 
                 CalendarView {
@@ -91,9 +92,9 @@ export component AppWindow inherits Window {
 
             // 右侧：Todo 面板
             Rectangle {
-                background: Fluent2Palette.surface_panel;
+                background: FluentTokens.neutral_bg_2;
                 border-width: 1px;
-                border-color: Fluent2Palette.border_default;
+                border-color: FluentTokens.neutral_stroke_1;
                 min-width: 320px;
                 horizontal-stretch: 1;
 
@@ -116,7 +117,7 @@ export component AppWindow inherits Window {
         // 主题色变更：同步更新两个全局变量（color_scheme_index 供设置对话框高亮用，selected_accent_index 供主题渲染用）
         accent_changed(idx) => {
             CalendarSettings.color_scheme_index = idx;
-            Fluent2Palette.selected_accent_index = idx;
+            FluentTokens.selected_accent_index = idx;
         }
         // 单元格大小变更：更新索引 + 直接同步到间距配置
         cell_size_changed(idx) => {
@@ -125,7 +126,7 @@ export component AppWindow inherits Window {
         }
         // 深色模式切换
         dark_mode_changed(dark) => {
-            Fluent2Palette.dark_mode = dark;
+            ThemeState.dark = dark;
         }
     }
 }

@@ -1,4 +1,4 @@
-import { Fluent2Palette } from "../../theme/fluent2-tokens.slint";
+import { FluentTokens } from "../../theme/fluent-tokens.slint";
 import { CalendarSpacingConfig } from "../../config/calendar-config.slint";
 import { NavButton } from "../common/nav-button.slint";
 
@@ -17,29 +17,31 @@ export component CalendarHeader inherits Rectangle {
         spacing: CalendarSpacingConfig.nav_spacing;
         alignment: space-between;
 
-        HorizontalLayout {
-            spacing: 8px;
-            alignment: start;
+        // 左侧标题
+        Rectangle {
+            height: CalendarSpacingConfig.nav_btn_size;
 
-            Text {
-                text: root.year + "年" + root.month + "月";
-                font-size: 24px;
-                font-weight: 600;
-                color: Fluent2Palette.text_primary;
-                vertical-alignment: center;
+            VerticalLayout {
+                alignment: center;
+
+                Text {
+                    text: root.year + "年" + root.month + "月";
+                    font-size: 24px;
+                    font-weight: 600;
+                    color: FluentTokens.neutral_fg_1;
+                }
             }
         }
 
+        // 右侧按钮
         HorizontalLayout {
             spacing: 4px;
-            alignment: end;
 
-            // 今天按钮（纯文字）
             Rectangle {
                 width: CalendarSpacingConfig.nav_btn_today_width;
                 height: CalendarSpacingConfig.nav_btn_size;
-                border-radius: 4px;
-                background: today_touch.has-hover ? Fluent2Palette.btn_hover : Fluent2Palette.btn_bg;
+                border-radius: FluentTokens.border_radius_small;
+                background: today_touch.pressed ? FluentTokens.neutral_bg_1_pressed : today_touch.has-hover ? FluentTokens.neutral_bg_1_hover : FluentTokens.neutral_bg_1;
 
                 animate background { duration: 150ms; }
 
@@ -47,7 +49,7 @@ export component CalendarHeader inherits Rectangle {
                     text: "今天";
                     font-size: 14px;
                     font-weight: 600;
-                    color: Fluent2Palette.accent;
+                    color: FluentTokens.brand_bg;
                     horizontal-alignment: center;
                     vertical-alignment: center;
                 }

@@ -1,4 +1,4 @@
-import { Fluent2Palette } from "../../theme/fluent2-tokens.slint";
+import { FluentTokens } from "../../theme/fluent-tokens.slint";
 
 export component TodoItemRow inherits Rectangle {
     in property <int> item_id;
@@ -10,44 +10,34 @@ export component TodoItemRow inherits Rectangle {
     callback delete(int);
 
     height: 44px;
-    border-radius: 6px;
+    border-radius: FluentTokens.border_radius_medium;
 
-    // 三色交替底色
-    property <int> color_cycle: Math.mod(root.row_index, 3);
-    property <color> row_bg_color: color_cycle == 0 ? Fluent2Palette.row_alt_1 : color_cycle == 1 ? Fluent2Palette.row_alt_2 : Fluent2Palette.row_alt_3;
+    background: hover_area.has-hover ? FluentTokens.neutral_bg_1_hover : FluentTokens.neutral_bg_1;
 
-    // hover 检测：放在子元素后面，has-hover 基于坐标而非 z-order
-    hover_bg := Rectangle {
-        width: 100%;
-        height: 100%;
-        border-radius: 6px;
-        background: hover_area.has-hover ? Fluent2Palette.accent_light : root.row_bg_color;
-
-        animate background { duration: 150ms; }
-    }
+    animate background { duration: 150ms; }
 
     hover_area := TouchArea { }
 
     HorizontalLayout {
-        padding-left: 8px;
+        padding-left: 12px;
         padding-right: 8px;
         spacing: 12px;
 
-        // Fluent2 风格复选框
+        // Fluent 2 checkbox (24px)
         Rectangle {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            border-radius: FluentTokens.border_radius_small;
             border-width: 1.5px;
-            border-color: root.item_completed ? Fluent2Palette.accent : Fluent2Palette.border_default;
-            background: root.item_completed ? Fluent2Palette.accent : transparent;
+            border-color: root.item_completed ? FluentTokens.brand_bg : FluentTokens.neutral_stroke_1;
+            background: root.item_completed ? FluentTokens.brand_bg : transparent;
             y: (parent.height - self.height) / 2;
 
             Image {
                 source: @image-url("../../icons/check.svg");
-                width: 12px;
-                height: 12px;
-                colorize: Fluent2Palette.text_on_accent;
+                width: 14px;
+                height: 14px;
+                colorize: FluentTokens.neutral_fg_on_brand;
                 visible: root.item_completed;
             }
 
@@ -65,7 +55,7 @@ export component TodoItemRow inherits Rectangle {
         Text {
             text: root.item_text;
             font-size: 14px;
-            color: root.item_completed ? Fluent2Palette.text_tertiary : Fluent2Palette.text_primary;
+            color: root.item_completed ? FluentTokens.neutral_fg_3 : FluentTokens.neutral_fg_1;
             horizontal-stretch: 1;
             vertical-alignment: center;
             overflow: elide;
@@ -75,15 +65,15 @@ export component TodoItemRow inherits Rectangle {
         Rectangle {
             width: 28px;
             height: 28px;
-            border-radius: 6px;
-            background: del_btn.has-hover ? Fluent2Palette.btn_hover : Fluent2Palette.btn_bg;
+            border-radius: FluentTokens.border_radius_small;
+            background: del_btn.pressed ? FluentTokens.neutral_bg_1_pressed : del_btn.has-hover ? FluentTokens.neutral_bg_1_hover : transparent;
             y: (parent.height - self.height) / 2;
 
             Image {
                 source: @image-url("../../icons/close.svg");
                 width: 14px;
                 height: 14px;
-                colorize: Fluent2Palette.text_secondary;
+                colorize: FluentTokens.neutral_fg_3;
             }
 
             del_btn := TouchArea {

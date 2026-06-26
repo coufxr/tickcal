@@ -1,4 +1,5 @@
-import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
+import { FluentTokens } from "../theme/fluent-tokens.slint";
+import { ThemeState } from "../theme/theme-state.slint";
 import { CalendarSpacingConfig, CalendarSettings } from "../config/calendar-config.slint";
 import { SettingsButton } from "./common/settings-button.slint";
 import { IconButton } from "./common/icon-button.slint";
@@ -15,7 +16,7 @@ export component SettingsDialog inherits Rectangle {
     visible: is_open;
 
     Rectangle {
-        background: Fluent2Palette.overlay;
+        background: FluentTokens.overlay;
 
         TouchArea {
             clicked => { root.close(); }
@@ -27,10 +28,15 @@ export component SettingsDialog inherits Rectangle {
         height: 480px;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
-        background: Fluent2Palette.surface_card;
-        border-radius: 8px;
+        background: FluentTokens.neutral_bg_1;
+        border-radius: FluentTokens.border_radius_x_large;
         border-width: 1px;
-        border-color: Fluent2Palette.border_default;
+        border-color: FluentTokens.neutral_stroke_2;
+
+        // Fluent 2 shadow (level 16)
+        drop-shadow-color: FluentTokens.shadow_key;
+        drop-shadow-blur: FluentTokens.shadow_16_blur;
+        drop-shadow-offset-y: FluentTokens.shadow_16_offset;
 
         VerticalLayout {
             padding: 24px;
@@ -43,7 +49,7 @@ export component SettingsDialog inherits Rectangle {
                     text: "设置";
                     font-size: 20px;
                     font-weight: 700;
-                    color: Fluent2Palette.text_primary;
+                    color: FluentTokens.neutral_fg_1;
                 }
 
                 IconButton {
@@ -60,7 +66,7 @@ export component SettingsDialog inherits Rectangle {
                     text: "外观模式";
                     font-size: 14px;
                     font-weight: 600;
-                    color: Fluent2Palette.text_primary;
+                    color: FluentTokens.neutral_fg_1;
                 }
 
                 HorizontalLayout {
@@ -68,13 +74,13 @@ export component SettingsDialog inherits Rectangle {
 
                     SettingsButton {
                         text: "浅色";
-                        is_selected: !Fluent2Palette.dark_mode;
+                        is_selected: !ThemeState.dark;
                         clicked => { root.dark_mode_changed(false); }
                     }
 
                     SettingsButton {
                         text: "深色";
-                        is_selected: Fluent2Palette.dark_mode;
+                        is_selected: ThemeState.dark;
                         clicked => { root.dark_mode_changed(true); }
                     }
                 }
@@ -87,7 +93,7 @@ export component SettingsDialog inherits Rectangle {
                     text: "每周起始日";
                     font-size: 14px;
                     font-weight: 600;
-                    color: Fluent2Palette.text_primary;
+                    color: FluentTokens.neutral_fg_1;
                 }
 
                 HorizontalLayout {
@@ -114,7 +120,7 @@ export component SettingsDialog inherits Rectangle {
                     text: "主题色";
                     font-size: 14px;
                     font-weight: 600;
-                    color: Fluent2Palette.text_primary;
+                    color: FluentTokens.neutral_fg_1;
                 }
 
                 for row in 2: HorizontalLayout {
@@ -122,18 +128,18 @@ export component SettingsDialog inherits Rectangle {
 
                     for col in 6: Rectangle {
                         property <int> color_idx: row * 6 + col;
-                        visible: color_idx < Fluent2Palette.accent_colors.length;
+                        visible: color_idx < FluentTokens.brand_bg_options.length;
                         width: 28px;
                         height: 28px;
                         border-radius: 14px;
-                        background: color_idx < Fluent2Palette.accent_colors.length ? Fluent2Palette.accent_colors[color_idx] : transparent;
+                        background: color_idx < FluentTokens.brand_bg_options.length ? FluentTokens.brand_bg_options[color_idx] : transparent;
                         border-width: CalendarSettings.color_scheme_index == color_idx ? 3px : 0px;
-                        border-color: Fluent2Palette.text_primary;
+                        border-color: CalendarSettings.color_scheme_index == color_idx ? FluentTokens.neutral_fg_1 : transparent;
 
                         animate border-width { duration: 150ms; }
 
                         TouchArea {
-                            clicked => { if (color_idx < Fluent2Palette.accent_colors.length) { root.accent_changed(color_idx); } }
+                            clicked => { if (color_idx < FluentTokens.brand_bg_options.length) { root.accent_changed(color_idx); } }
                             mouse-cursor: pointer;
                         }
 
@@ -150,7 +156,7 @@ export component SettingsDialog inherits Rectangle {
                     text: "单元格大小";
                     font-size: 14px;
                     font-weight: 600;
-                    color: Fluent2Palette.text_primary;
+                    color: FluentTokens.neutral_fg_1;
                 }
 
                 HorizontalLayout {

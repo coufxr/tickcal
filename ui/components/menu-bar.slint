@@ -1,11 +1,11 @@
-import { Fluent2Palette } from "../theme/fluent2-tokens.slint";
+import { FluentTokens } from "../theme/fluent-tokens.slint";
 import { IconButton } from "./common/icon-button.slint";
 
 export component MenuBar inherits Rectangle {
     callback open_settings();
 
     height: 40px;
-    background: Fluent2Palette.surface_sidebar;
+    background: FluentTokens.neutral_bg_1;
 
     HorizontalLayout {
         padding-left: 16px;
@@ -16,7 +16,7 @@ export component MenuBar inherits Rectangle {
             text: "日历";
             font-size: 15px;
             font-weight: 600;
-            color: Fluent2Palette.text_primary;
+            color: FluentTokens.neutral_fg_1;
             vertical-alignment: center;
         }
 
@@ -25,5 +25,13 @@ export component MenuBar inherits Rectangle {
             label: "设置";
             clicked => { root.open_settings(); }
         }
+    }
+
+    // 底部分割线
+    Rectangle {
+        y: parent.height - 1px;
+        height: 1px;
+        width: 100%;
+        background: FluentTokens.neutral_stroke_1;
     }
 }

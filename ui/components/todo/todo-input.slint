@@ -1,4 +1,4 @@
-import { Fluent2Palette } from "../../theme/fluent2-tokens.slint";
+import { FluentTokens } from "../../theme/fluent-tokens.slint";
 
 export component TodoInput inherits HorizontalLayout {
     in property <string> selected_date;
@@ -12,10 +12,10 @@ export component TodoInput inherits HorizontalLayout {
     Rectangle {
         horizontal-stretch: 1;
         height: 36px;
-        border-radius: 6px;
+        border-radius: FluentTokens.border_radius_medium;
         border-width: 1px;
-        border-color: Fluent2Palette.border_default;
-        background: Fluent2Palette.surface_card;
+        border-color: FluentTokens.neutral_stroke_1;
+        background: FluentTokens.neutral_bg_1;
 
         input := TextInput {
             x: 12px;
@@ -23,7 +23,7 @@ export component TodoInput inherits HorizontalLayout {
             height: 36px;
             vertical-alignment: center;
             font-size: 14px;
-            color: Fluent2Palette.text_primary;
+            color: FluentTokens.neutral_fg_1;
             accepted => {
                 if (root.selected_date == "") {
                     root.status_text = "请先选择一个日期";
@@ -42,8 +42,8 @@ export component TodoInput inherits HorizontalLayout {
     Rectangle {
         width: 72px;
         height: 36px;
-        border-radius: 6px;
-        background: add_btn.has-hover ? Fluent2Palette.accent_hover : Fluent2Palette.accent;
+        border-radius: FluentTokens.border_radius_medium;
+        background: add_btn.pressed ? FluentTokens.brand_bg_pressed : add_btn.has-hover ? FluentTokens.brand_bg_hover : FluentTokens.brand_bg;
 
         animate background { duration: 150ms; }
 
@@ -51,7 +51,7 @@ export component TodoInput inherits HorizontalLayout {
             text: "添加";
             font-size: 14px;
             font-weight: 600;
-            color: Fluent2Palette.text_on_accent;
+            color: FluentTokens.neutral_fg_on_brand;
             horizontal-alignment: center;
             vertical-alignment: center;
         }

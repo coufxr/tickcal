@@ -1,0 +1,121 @@
+import { ThemePalette } from "./theme-palette.slint";
+import { ThemeState } from "./theme-state.slint";
+import { LightPalette } from "./light-palette.slint";
+import { DarkPalette } from "./dark-palette.slint";
+
+export global FluentTokens {
+    // ─── Brand 选择（不涉及主题切换）───
+    in-out property <int> selected_accent_index: 0;
+
+    // ─── Palette 选择（唯一一处主题判断）───
+    private property <ThemePalette> p:
+        ThemeState.dark
+            ? DarkPalette.colors
+            : LightPalette.colors;
+
+    // ─── Neutral Background ───
+    out property <color> neutral_bg_1: p.color_neutral_background_1;
+    out property <color> neutral_bg_1_hover: p.color_neutral_background_1_hover;
+    out property <color> neutral_bg_1_pressed: p.color_neutral_background_1_pressed;
+    out property <color> neutral_bg_2: p.color_neutral_background_2;
+    out property <color> neutral_bg_3: p.color_neutral_background_3;
+    out property <color> neutral_bg_4: p.color_neutral_background_4;
+    out property <color> neutral_bg_5: p.color_neutral_background_5;
+    out property <color> neutral_bg_inverted: p.color_neutral_background_inverted;
+
+    // ─── Neutral Foreground ───
+    out property <color> neutral_fg_1: p.color_neutral_foreground_1;
+    out property <color> neutral_fg_2: p.color_neutral_foreground_2;
+    out property <color> neutral_fg_3: p.color_neutral_foreground_3;
+    out property <color> neutral_fg_4: p.color_neutral_foreground_4;
+    out property <color> neutral_fg_inverted: p.color_neutral_foreground_inverted;
+    out property <color> neutral_fg_on_brand: p.color_neutral_foreground_on_brand;
+
+    // ─── Brand ───
+    out property <[color]> brand_bg_options: p.brand_bg_options;
+    out property <color> brand_bg: brand_bg_options[selected_accent_index];
+    out property <color> brand_bg_hover: brand_bg.darker(0.1);
+    out property <color> brand_bg_pressed: brand_bg.darker(0.18);
+    out property <color> brand_bg_light: brand_bg.brighter(0.25);
+    out property <color> brand_bg_lighter: brand_bg.brighter(0.4);
+    out property <color> brand_fg_1: neutral_fg_on_brand;
+
+    // ─── Neutral Stroke ───
+    out property <color> neutral_stroke_1: p.color_neutral_stroke_1;
+    out property <color> neutral_stroke_1_hover: p.color_neutral_stroke_1_hover;
+    out property <color> neutral_stroke_1_pressed: p.color_neutral_stroke_1_pressed;
+    out property <color> neutral_stroke_2: p.color_neutral_stroke_2;
+    out property <color> neutral_stroke_disabled: p.color_neutral_stroke_disabled;
+
+    // ─── Status ───
+    out property <color> status_success: p.color_status_success;
+    out property <color> status_warning: p.color_status_warning;
+    out property <color> status_danger: p.color_status_danger;
+    out property <color> status_info: p.color_status_info;
+
+    // ─── Overlay & Shadow ───
+    out property <color> overlay: p.color_overlay;
+    out property <color> shadow_ambient: p.color_shadow_ambient;
+    out property <color> shadow_key: p.color_shadow_key;
+
+    // ─── Stencil ───
+    out property <color> stencil_1: p.color_stencil_1;
+    out property <color> stencil_2: p.color_stencil_2;
+    out property <color> stencil_3: p.color_stencil_3;
+
+    // ─── Shadow Elevation ───
+    out property <length> shadow_2_blur: 4px;
+    out property <length> shadow_2_offset: 1px;
+    out property <length> shadow_4_blur: 8px;
+    out property <length> shadow_4_offset: 2px;
+    out property <length> shadow_8_blur: 16px;
+    out property <length> shadow_8_offset: 4px;
+    out property <length> shadow_16_blur: 32px;
+    out property <length> shadow_16_offset: 8px;
+
+    // ─── Border Radius ───
+    out property <length> border_radius_none: 0px;
+    out property <length> border_radius_small: 2px;
+    out property <length> border_radius_medium: 4px;
+    out property <length> border_radius_large: 8px;
+    out property <length> border_radius_x_large: 12px;
+    out property <length> border_radius_circular: 10000px;
+
+    // ─── Spacing ───
+    out property <length> spacing_xs: 4px;
+    out property <length> spacing_s: 8px;
+    out property <length> spacing_m: 12px;
+    out property <length> spacing_l: 16px;
+    out property <length> spacing_xl: 20px;
+
+    // ─── Font Size ───
+    out property <length> font_size_100: 10px;
+    out property <length> font_size_200: 12px;
+    out property <length> font_size_300: 14px;
+    out property <length> font_size_400: 16px;
+    out property <length> font_size_500: 20px;
+    out property <length> font_size_600: 24px;
+
+    // ─── Font Weight ───
+    out property <int> font_weight_regular: 400;
+    out property <int> font_weight_semibold: 600;
+    out property <int> font_weight_bold: 700;
+
+    // ─── Line Height ───
+    out property <length> line_height_100: 14px;
+    out property <length> line_height_200: 16px;
+    out property <length> line_height_300: 20px;
+    out property <length> line_height_400: 22px;
+    out property <length> line_height_500: 28px;
+
+    // ─── Duration ───
+    out property <duration> duration_fast: 150ms;
+    out property <duration> duration_normal: 200ms;
+    out property <duration> duration_slow: 300ms;
+
+    // ─── Curve ───
+    out property <easing> curve_easy_ease: cubic-bezier(0.33, 0, 0.67, 1);
+    out property <easing> curve_accelerate: cubic-bezier(0.9, 0.1, 1, 0.2);
+    out property <easing> curve_decelerate: cubic-bezier(0.1, 0.9, 0.2, 1);
+    out property <easing> curve_linear: cubic-bezier(0, 0, 1, 1);
+}

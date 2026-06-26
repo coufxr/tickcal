@@ -1,4 +1,4 @@
-import { Fluent2Palette } from "../../theme/fluent2-tokens.slint";
+import { FluentTokens } from "../../theme/fluent-tokens.slint";
 
 export component SettingsButton inherits Rectangle {
     in property <string> text;
@@ -9,20 +9,20 @@ export component SettingsButton inherits Rectangle {
 
     width: root.btn_width;
     height: 32px;
-    border-radius: 4px;
-    background: is_selected ? Fluent2Palette.accent : Fluent2Palette.surface_tile;
+    border-radius: FluentTokens.border_radius_small;
+    background: touch.pressed ? (is_selected ? FluentTokens.brand_bg_pressed : FluentTokens.neutral_bg_1_pressed) : is_selected ? FluentTokens.brand_bg : touch.has-hover ? FluentTokens.neutral_bg_3 : FluentTokens.neutral_bg_2;
 
-    animate background { duration: 200ms; }
+    animate background { duration: 150ms; }
 
     Text {
         text: root.text;
-        color: is_selected ? Fluent2Palette.text_on_accent : Fluent2Palette.text_primary;
+        color: is_selected ? FluentTokens.neutral_fg_on_brand : FluentTokens.neutral_fg_1;
         font-size: 13px;
         horizontal-alignment: center;
         vertical-alignment: center;
     }
 
-    TouchArea {
+    touch := TouchArea {
         clicked => { root.clicked(); }
         mouse-cursor: pointer;
     }

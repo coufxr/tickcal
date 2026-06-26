@@ -39,7 +39,7 @@ impl Default for AppSettings {
 impl AppSettings {
     /// 校验并修正设置值，确保在合法范围内
     ///
-    /// - accent_index: 0..=11，与 fluent2-tokens.slint 中 accent_colors 数组长度一致
+    /// - accent_index: 0..=11，与 light-palette.slint / dark-palette.slint 中 brand_bg_options 数组长度一致
     /// - week_start_day: 0..=6（星期日=0，星期一=1，...，星期六=6）
     /// - cell_size_index: 0..=2（小=0，中=1，大=2）
     fn validate(mut self) -> Self {

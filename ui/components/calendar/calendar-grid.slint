@@ -1,5 +1,5 @@
 import { CalendarMonth, WeekdayRow } from "../../types/calendar-types.slint";
-import { Fluent2Palette } from "../../theme/fluent2-tokens.slint";
+import { FluentTokens } from "../../theme/fluent-tokens.slint";
 import { CalendarSpacingConfig } from "../../config/calendar-config.slint";
 import { CalendarWeekdayLabel } from "./calendar-weekday-label.slint";
 import { CalendarDayCell } from "./calendar-day-cell.slint";
@@ -33,7 +33,7 @@ export component CalendarGrid inherits Rectangle {
         Rectangle {
             height: 1px;
             width: 100%;
-            background: Fluent2Palette.divider;
+            background: FluentTokens.neutral_stroke_1;
         }
 
         GridLayout {
