@@ -15,6 +15,17 @@ pub struct Database {
     conn: Mutex<Connection>,
 }
 
+#[cfg(test)]
+impl Database {
+    pub(crate) fn new_in_memory() -> Self {
+        let conn = Connection::open_in_memory().unwrap();
+        conn.execute_batch(CREATE_TABLE_SQL).unwrap();
+        Database {
+            conn: Mutex::new(conn),
+        }
+    }
+}
+
 impl Database {
     /// 初始化数据库，创建表结构
     pub fn new() -> Self {
@@ -26,16 +37,7 @@ impl Database {
         let conn = Connection::open(&path)
             .unwrap_or_else(|e| panic!("打开数据库失败 {}: {}", path.display(), e));
 
-        conn.execute_batch(
-            "CREATE TABLE IF NOT EXISTS tasks (
-                id INTEGER PRIMARY KEY,
-                date TEXT NOT NULL,
-                text TEXT NOT NULL,
-                completed BOOLEAN NOT NULL DEFAULT 0
-            );
-            CREATE INDEX IF NOT EXISTS idx_tasks_date ON tasks(date);",
-        )
-        .expect("创建表失败");
+        conn.execute_batch(CREATE_TABLE_SQL).expect("创建表失败");
 
         Self {
             conn: Mutex::new(conn),
@@ -80,19 +82,13 @@ impl Database {
 
         let conn = self.conn.lock().unwrap();
 
-        let id: u32 = conn
-            .query_row("SELECT COALESCE(MAX(id), 0) + 1 FROM tasks", [], |row| {
-                row.get(0)
-            })
-            .unwrap_or(1);
-
         conn.execute(
-            "INSERT INTO tasks (id, date, text, completed) VALUES (?1, ?2, ?3, 0)",
-            params![id, date, text],
+            "INSERT INTO tasks (date, text, completed) VALUES (?1, ?2, 0)",
+            params![date, text],
         )
         .ok()?;
 
-        Some(id)
+        Some(conn.last_insert_rowid() as u32)
     }
 
     /// 切换 task 完成状态
@@ -122,4 +118,105 @@ impl Database {
 /// 获取数据库文件路径
 fn db_path() -> PathBuf {
     util::config_dir().join("calendar.db")
+}
+
+const CREATE_TABLE_SQL: &str = "
+    CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY,
+        date TEXT NOT NULL,
+        text TEXT NOT NULL,
+        completed BOOLEAN NOT NULL DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS idx_tasks_date ON tasks(date);";
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_insert_and_load() {
+        let db = Database::new_in_memory();
+        let id = db.insert_task("2026-01-01", "买菜").unwrap();
+        assert_eq!(id, 1);
+
+        let items = db.load_by_date("2026-01-01");
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].text, "买菜");
+        assert!(!items[0].completed);
+    }
+
+    #[test]
+    fn test_insert_empty_text_returns_none() {
+        let db = Database::new_in_memory();
+        assert!(db.insert_task("2026-01-01", "").is_none());
+    }
+
+    #[test]
+    fn test_insert_empty_date_returns_none() {
+        let db = Database::new_in_memory();
+        assert!(db.insert_task("", "买菜").is_none());
+    }
+
+    #[test]
+    fn test_load_by_date_returns_empty_for_unknown_date() {
+        let db = Database::new_in_memory();
+        let items = db.load_by_date("2099-01-01");
+        assert!(items.is_empty());
+    }
+
+    #[test]
+    fn test_get_task_dates() {
+        let db = Database::new_in_memory();
+        db.insert_task("2026-01-01", "任务A").unwrap();
+        db.insert_task("2026-01-01", "任务B").unwrap();
+        db.insert_task("2026-02-15", "任务C").unwrap();
+
+        let dates = db.get_task_dates();
+        assert_eq!(dates.len(), 2);
+        assert!(dates.contains("2026-01-01"));
+        assert!(dates.contains("2026-02-15"));
+    }
+
+    #[test]
+    fn test_toggle_task() {
+        let db = Database::new_in_memory();
+        let id = db.insert_task("2026-01-01", "任务").unwrap();
+
+        assert!(!db.load_by_date("2026-01-01")[0].completed);
+        assert!(db.toggle_task(id));
+        assert!(db.load_by_date("2026-01-01")[0].completed);
+        assert!(db.toggle_task(id));
+        assert!(!db.load_by_date("2026-01-01")[0].completed);
+    }
+
+    #[test]
+    fn test_toggle_nonexistent_task() {
+        let db = Database::new_in_memory();
+        assert!(!db.toggle_task(999));
+    }
+
+    #[test]
+    fn test_delete_task() {
+        let db = Database::new_in_memory();
+        let id = db.insert_task("2026-01-01", "任务").unwrap();
+        assert!(db.delete_task(id));
+        assert!(db.load_by_date("2026-01-01").is_empty());
+    }
+
+    #[test]
+    fn test_delete_nonexistent_task() {
+        let db = Database::new_in_memory();
+        assert!(!db.delete_task(999));
+    }
+
+    #[test]
+    fn test_ids_are_sequential() {
+        let db = Database::new_in_memory();
+        let id1 = db.insert_task("2026-01-01", "A").unwrap();
+        let id2 = db.insert_task("2026-01-01", "B").unwrap();
+        let id3 = db.insert_task("2026-01-02", "C").unwrap();
+        assert_eq!(id1, 1);
+        assert_eq!(id2, 2);
+        assert_eq!(id3, 3);
+    }
 }
