@@ -1,0 +1,121 @@
+import { FluentTokens } from "../theme/fluent-tokens.slint";
+import { IconButton } from "./common/icon-button.slint";
+
+component DialogButton inherits Rectangle {
+    in property <string> label;
+    in property <bool> is_primary: false;
+    callback clicked();
+
+    height: 32px;
+    min-width: self.preferred-width + 24px;
+    border-radius: FluentTokens.border_radius_medium;
+
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+        mouse-cursor: pointer;
+    }
+
+    // Fluent 2: primary = filled accent, secondary = subtle (transparent + border)
+    background: is_primary
+        ? (touch.pressed ? FluentTokens.brand_bg_pressed : touch.has-hover ? FluentTokens.brand_bg_hover : FluentTokens.brand_bg)
+        : (touch.pressed ? FluentTokens.neutral_bg_1_pressed : touch.has-hover ? FluentTokens.neutral_bg_1_hover : transparent);
+    border-width: 1px;
+    border-color: is_primary ? FluentTokens.brand_bg : FluentTokens.neutral_stroke_1;
+
+    animate background { duration: FluentTokens.duration_fast; easing: FluentTokens.curve_easy_ease; }
+
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        alignment: center;
+
+        Text {
+            text: root.label;
+            font-size: FluentTokens.font_size_300;
+            color: is_primary ? FluentTokens.neutral_fg_on_brand : FluentTokens.neutral_fg_1;
+            vertical-alignment: center;
+        }
+    }
+
+    accessible-role: button;
+    accessible-label: root.label;
+}
+
+export component QuitDialog inherits Rectangle {
+    in property <bool> is_open;
+
+    callback minimize_to_tray();
+    callback quit_app();
+    callback close();
+
+    visible: is_open;
+
+    Rectangle {
+        background: FluentTokens.overlay;
+
+        TouchArea {
+            clicked => { root.close(); }
+        }
+    }
+
+    // Fluent 2 dialog: 8px corner radius
+    Rectangle {
+        width: 380px;
+        height: 200px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        background: FluentTokens.neutral_bg_1;
+        border-radius: FluentTokens.border_radius_large;
+        border-width: 1px;
+        border-color: FluentTokens.neutral_stroke_2;
+
+        drop-shadow-color: FluentTokens.shadow_key;
+        drop-shadow-blur: FluentTokens.shadow_16_blur;
+        drop-shadow-offset-y: FluentTokens.shadow_16_offset;
+
+        VerticalLayout {
+            padding: 24px;
+            spacing: FluentTokens.spacing_xl;
+
+            HorizontalLayout {
+                alignment: space-between;
+
+                Text {
+                    text: @tr("退出确认");
+                    font-size: FluentTokens.font_size_400;
+                    font-weight: FluentTokens.font_weight_semibold;
+                    color: FluentTokens.neutral_fg_1;
+                }
+
+                IconButton {
+                    icon: @image-url("../icons/close.svg");
+                    label: @tr("关闭");
+                    clicked => { root.close(); }
+                }
+            }
+
+            Text {
+                text: @tr("关闭窗口后，Calendar 将最小化到系统托盘继续运行。\n确定要完全退出吗？");
+                font-size: FluentTokens.font_size_300;
+                color: FluentTokens.neutral_fg_2;
+                wrap: word-wrap;
+            }
+
+            HorizontalLayout {
+                spacing: FluentTokens.spacing_s;
+                alignment: end;
+
+                DialogButton {
+                    label: @tr("最小化到托盘");
+                    clicked => { root.minimize_to_tray(); }
+                }
+
+                DialogButton {
+                    label: @tr("退出");
+                    is_primary: true;
+                    clicked => { root.quit_app(); }
+                }
+            }
+        }
+    }
+}

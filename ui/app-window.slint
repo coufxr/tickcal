@@ -3,6 +3,7 @@ import { CalendarView } from "./components/calendar/calendar-view.slint";
 import { TaskPanel } from "./components/task/task-panel.slint";
 import { SettingsDialog } from "./components/settings-dialog.slint";
 import { AboutDialog } from "./components/about-dialog.slint";
+import { QuitDialog } from "./components/quit-dialog.slint";
 import { FluentTokens } from "./theme/fluent-tokens.slint";
 import { ThemeState } from "./theme/theme-state.slint";
 import {
@@ -10,7 +11,7 @@ import {
     CalendarSpacingConfig,
 } from "./config/calendar-config.slint";
 import { TaskState } from "./globals/task-state.slint";
-
+import { TrayState } from "./globals/tray-state.slint";
 
 export component AppWindow inherits Window {
     title: "Calendar";
@@ -20,12 +21,15 @@ export component AppWindow inherits Window {
     min-height: 640px;
     background: FluentTokens.neutral_bg_1;
 
+    icon: @image-url("./icons/app-icon.svg");
+
     // 月视图数据和星期标题行（由 Rust 端设置）
     in-out property <CalendarMonth> month_data;
     in-out property <WeekdayRow> weekdays;
     // 对话框状态
     in-out property <bool> settings_open: false;
     in-out property <bool> about_open: false;
+    in-out property <bool> quit_open: false;
     in-out property <string> app_version: "0.1.0";
 
     // 日历导航回调
@@ -52,7 +56,16 @@ export component AppWindow inherits Window {
         CalendarSpacingConfig.cell_size = root.cell_size_values[cs];
     }
 
-    // 只读代理属性：Rust 端在窗口关闭时读取这些值并保存到磁盘
+    // 双击检测计时器（300ms 超时）
+    Timer {
+        interval: 300ms;
+        running: TrayState.waiting_for_double_click;
+        triggered => {
+            TrayState.waiting_for_double_click = false;
+        }
+    }
+
+    // 只读代理属性：Rust 端在设置变更时读取这些值并保存到磁盘
     out property <bool> persisted_dark_mode: ThemeState.dark;
     out property <int> persisted_accent_index: FluentTokens.selected_accent_index;
     out property <int> persisted_week_start_day: CalendarSettings.week_start_day;
@@ -154,6 +167,49 @@ export component AppWindow inherits Window {
         is_open: root.about_open;
         version: root.app_version;
         close => { root.about_open = false; }
+    }
+
+    // ─── 退出确认对话框 ───
+    QuitDialog {
+        is_open: root.quit_open;
+        close => { root.quit_open = false; }
+        minimize_to_tray => {
+            root.quit_open = false;
+            root.hide();
+        }
+        quit_app => {
+            root.quit_open = false;
+            root.quit();
+        }
+    }
+}
+
+export component AppTray inherits SystemTrayIcon {
+    icon: @image-url("./icons/app-icon.svg");
+    tooltip: "Calendar";
+
+    callback toggle_window();
+    callback quit();
+
+    clicked => {
+        if (TrayState.waiting_for_double_click) {
+            TrayState.waiting_for_double_click = false;
+            root.toggle_window();
+        } else {
+            TrayState.waiting_for_double_click = true;
+        }
+    }
+
+    Menu {
+        MenuItem {
+            title: @tr("显示/隐藏");
+            activated => { root.toggle_window(); }
+        }
+        MenuSeparator {}
+        MenuItem {
+            title: @tr("退出");
+            activated => { root.quit(); }
+        }
     }
 }
 

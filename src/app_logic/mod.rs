@@ -41,7 +41,8 @@ pub fn init(
     let weak = ui.as_weak();
     ui.on_quit(move || {
         if let Some(ui) = weak.upgrade() {
-            ui.window().hide().ok();
+            crate::lifespan::save_settings(&ui);
+            slint::quit_event_loop().ok();
         }
     });
 

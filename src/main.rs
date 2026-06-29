@@ -12,6 +12,7 @@ mod lifespan;
 mod model;
 mod models;
 mod settings;
+
 mod util;
 
 use models::{CalendarModel, TaskModel};
@@ -51,7 +52,31 @@ fn main() -> Result<(), Box<dyn Error>> {
     };
     task_model.borrow_mut().select_date(today);
 
-    // 初始化应用逻辑：刷新 UI + 注册回调
+    // 初始化系统托盘（Slint 原生 SystemTrayIcon）
+    let tray = AppTray::new()?;
+    {
+        let ui_weak = ui.as_weak();
+        tray.on_toggle_window(move || {
+            if let Some(w) = ui_weak.upgrade() {
+                if w.window().is_visible() {
+                    w.hide().ok();
+                } else {
+                    w.show().ok();
+                }
+            }
+        });
+    }
+    {
+        let ui_weak = ui.as_weak();
+        tray.on_quit(move || {
+            if let Some(w) = ui_weak.upgrade() {
+                lifespan::save_settings(&w);
+            }
+            slint::quit_event_loop().ok();
+        });
+    }
+
+    // 初始化应用逻辑
     app_logic::init(&ui, &calendar_model, &task_model);
 
     lifespan::on_close(&ui);
