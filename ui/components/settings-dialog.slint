@@ -1,8 +1,26 @@
 import { FluentTokens } from "../theme/fluent-tokens.slint";
 import { ThemeState } from "../theme/theme-state.slint";
 import { CalendarSpacingConfig, CalendarSettings } from "../config/calendar-config.slint";
-import { SettingsButton } from "./common/settings-button.slint";
+import { TextButton } from "./common/text-button.slint";
 import { IconButton } from "./common/icon-button.slint";
+
+component SettingsButton inherits TextButton {
+    in property <bool> is_selected: false;
+    in property <length> btn_width: 120px;
+
+    width: root.btn_width;
+    is_primary: root.is_selected;
+    font_size: 13px;
+    border-radius: FluentTokens.border_radius_small;
+
+    background: root.pressed
+        ? (is_selected ? FluentTokens.brand_bg_pressed : FluentTokens.neutral_bg_1_pressed)
+        : is_selected ? FluentTokens.brand_bg
+        : root.has-hover ? FluentTokens.neutral_bg_3
+        : FluentTokens.neutral_bg_2;
+    border-width: 0px;
+    border-color: transparent;
+}
 
 export component SettingsDialog inherits Rectangle {
     in property <bool> is_open;
@@ -40,15 +58,15 @@ export component SettingsDialog inherits Rectangle {
 
         VerticalLayout {
             padding: 24px;
-            spacing: 20px;
+            spacing: FluentTokens.spacing_xl;
 
             HorizontalLayout {
                 alignment: space-between;
 
                 Text {
                     text: "设置";
-                    font-size: 20px;
-                    font-weight: 700;
+                    font-size: FluentTokens.font_size_500;
+                    font-weight: FluentTokens.font_weight_bold;
                     color: FluentTokens.neutral_fg_1;
                 }
 
@@ -64,8 +82,8 @@ export component SettingsDialog inherits Rectangle {
 
                 Text {
                     text: "外观模式";
-                    font-size: 14px;
-                    font-weight: 600;
+                    font-size: FluentTokens.font_size_300;
+                    font-weight: FluentTokens.font_weight_semibold;
                     color: FluentTokens.neutral_fg_1;
                 }
 
@@ -73,13 +91,13 @@ export component SettingsDialog inherits Rectangle {
                     spacing: 8px;
 
                     SettingsButton {
-                        text: "浅色";
+                        label: "浅色";
                         is_selected: !ThemeState.dark;
                         clicked => { root.dark_mode_changed(false); }
                     }
 
                     SettingsButton {
-                        text: "深色";
+                        label: "深色";
                         is_selected: ThemeState.dark;
                         clicked => { root.dark_mode_changed(true); }
                     }
@@ -91,8 +109,8 @@ export component SettingsDialog inherits Rectangle {
 
                 Text {
                     text: "每周起始日";
-                    font-size: 14px;
-                    font-weight: 600;
+                    font-size: FluentTokens.font_size_300;
+                    font-weight: FluentTokens.font_weight_semibold;
                     color: FluentTokens.neutral_fg_1;
                 }
 
@@ -100,13 +118,13 @@ export component SettingsDialog inherits Rectangle {
                     spacing: 8px;
 
                     SettingsButton {
-                        text: "星期日";
+                        label: "星期日";
                         is_selected: CalendarSettings.week_start_day == 0;
                         clicked => { root.week_start_changed(0); }
                     }
 
                     SettingsButton {
-                        text: "星期一";
+                        label: "星期一";
                         is_selected: CalendarSettings.week_start_day == 1;
                         clicked => { root.week_start_changed(1); }
                     }
@@ -118,8 +136,8 @@ export component SettingsDialog inherits Rectangle {
 
                 Text {
                     text: "主题色";
-                    font-size: 14px;
-                    font-weight: 600;
+                    font-size: FluentTokens.font_size_300;
+                    font-weight: FluentTokens.font_weight_semibold;
                     color: FluentTokens.neutral_fg_1;
                 }
 
@@ -136,7 +154,7 @@ export component SettingsDialog inherits Rectangle {
                         border-width: CalendarSettings.color_scheme_index == color_idx ? 3px : 0px;
                         border-color: CalendarSettings.color_scheme_index == color_idx ? FluentTokens.neutral_fg_1 : transparent;
 
-                        animate border-width { duration: 150ms; }
+                        animate border-width { duration: FluentTokens.duration_fast; }
 
                         TouchArea {
                             clicked => { if (color_idx < FluentTokens.brand_bg_options.length) { root.accent_changed(color_idx); } }
@@ -154,8 +172,8 @@ export component SettingsDialog inherits Rectangle {
 
                 Text {
                     text: "单元格大小";
-                    font-size: 14px;
-                    font-weight: 600;
+                    font-size: FluentTokens.font_size_300;
+                    font-weight: FluentTokens.font_weight_semibold;
                     color: FluentTokens.neutral_fg_1;
                 }
 
@@ -163,21 +181,21 @@ export component SettingsDialog inherits Rectangle {
                     spacing: 8px;
 
                     SettingsButton {
-                        text: "小";
+                        label: "小";
                         btn_width: 80px;
                         is_selected: CalendarSettings.cell_size_index == 0;
                         clicked => { root.cell_size_changed(0); }
                     }
 
                     SettingsButton {
-                        text: "中";
+                        label: "中";
                         btn_width: 80px;
                         is_selected: CalendarSettings.cell_size_index == 1;
                         clicked => { root.cell_size_changed(1); }
                     }
 
                     SettingsButton {
-                        text: "大";
+                        label: "大";
                         btn_width: 80px;
                         is_selected: CalendarSettings.cell_size_index == 2;
                         clicked => { root.cell_size_changed(2); }

@@ -1,18 +1,13 @@
 import { FluentTokens } from "../../theme/fluent-tokens.slint";
+import { Button } from "./button.slint";
 
-export component IconButton inherits Rectangle {
+export component IconButton inherits Button {
     in property <length> icon_size: 28px;
     in property <image> icon;
     in property <string> label;
 
-    callback clicked();
-
     width: icon_size;
     height: icon_size;
-    border-radius: FluentTokens.border_radius_small;
-    background: touch.pressed ? FluentTokens.neutral_bg_1_pressed : touch.has-hover ? FluentTokens.neutral_bg_1_hover : FluentTokens.neutral_bg_1;
-
-    animate background { duration: 150ms; }
 
     Image {
         source: icon;
@@ -23,11 +18,5 @@ export component IconButton inherits Rectangle {
         vertical-alignment: center;
     }
 
-    touch := TouchArea {
-        clicked => { root.clicked(); }
-        mouse-cursor: pointer;
-    }
-
-    accessible-role: button;
     accessible-label: root.label;
 }

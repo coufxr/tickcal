@@ -1,45 +1,6 @@
 import { FluentTokens } from "../theme/fluent-tokens.slint";
 import { IconButton } from "./common/icon-button.slint";
-
-component DialogButton inherits Rectangle {
-    in property <string> label;
-    in property <bool> is_primary: false;
-    callback clicked();
-
-    height: 32px;
-    min-width: self.preferred-width + 24px;
-    border-radius: FluentTokens.border_radius_medium;
-
-    touch := TouchArea {
-        clicked => { root.clicked(); }
-        mouse-cursor: pointer;
-    }
-
-    // Fluent 2: primary = filled accent, secondary = subtle (transparent + border)
-    background: is_primary
-        ? (touch.pressed ? FluentTokens.brand_bg_pressed : touch.has-hover ? FluentTokens.brand_bg_hover : FluentTokens.brand_bg)
-        : (touch.pressed ? FluentTokens.neutral_bg_1_pressed : touch.has-hover ? FluentTokens.neutral_bg_1_hover : transparent);
-    border-width: 1px;
-    border-color: is_primary ? FluentTokens.brand_bg : FluentTokens.neutral_stroke_1;
-
-    animate background { duration: FluentTokens.duration_fast; easing: FluentTokens.curve_easy_ease; }
-
-    HorizontalLayout {
-        padding-left: 12px;
-        padding-right: 12px;
-        alignment: center;
-
-        Text {
-            text: root.label;
-            font-size: FluentTokens.font_size_300;
-            color: is_primary ? FluentTokens.neutral_fg_on_brand : FluentTokens.neutral_fg_1;
-            vertical-alignment: center;
-        }
-    }
-
-    accessible-role: button;
-    accessible-label: root.label;
-}
+import { TextButton } from "./common/text-button.slint";
 
 export component QuitDialog inherits Rectangle {
     in property <bool> is_open;
@@ -105,12 +66,12 @@ export component QuitDialog inherits Rectangle {
                 spacing: FluentTokens.spacing_s;
                 alignment: end;
 
-                DialogButton {
+                TextButton {
                     label: @tr("最小化到托盘");
                     clicked => { root.minimize_to_tray(); }
                 }
 
-                DialogButton {
+                TextButton {
                     label: @tr("退出");
                     is_primary: true;
                     clicked => { root.quit_app(); }

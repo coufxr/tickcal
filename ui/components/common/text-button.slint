@@ -1,0 +1,32 @@
+import { FluentTokens } from "../../theme/fluent-tokens.slint";
+import { Button } from "./button.slint";
+
+export component TextButton inherits Button {
+    in property <string> label;
+    in property <bool> is_primary: false;
+    in property <length> font_size: FluentTokens.font_size_300;
+
+    height: 32px;
+    border-radius: FluentTokens.border_radius_medium;
+
+    background: is_primary
+        ? (root.pressed ? FluentTokens.brand_bg_pressed : root.has-hover ? FluentTokens.brand_bg_hover : FluentTokens.brand_bg)
+        : (root.pressed ? FluentTokens.neutral_bg_1_pressed : root.has-hover ? FluentTokens.neutral_bg_1_hover : transparent);
+    border-width: 1px;
+    border-color: is_primary ? FluentTokens.brand_bg : FluentTokens.neutral_stroke_1;
+
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        alignment: center;
+
+        Text {
+            text: root.label;
+            font-size: root.font_size;
+            color: is_primary ? FluentTokens.neutral_fg_on_brand : FluentTokens.neutral_fg_1;
+            vertical-alignment: center;
+        }
+    }
+
+    accessible-label: root.label;
+}

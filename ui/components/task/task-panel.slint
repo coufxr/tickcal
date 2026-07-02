@@ -7,15 +7,15 @@ export component TaskPanel inherits Rectangle {
     background: transparent;
 
     VerticalLayout {
-        padding: 20px;
-        spacing: 12px;
+        padding: FluentTokens.spacing_xl;
+        spacing: FluentTokens.spacing_m;
         alignment: start;
 
         // 标题
         Text {
             text: TaskState.selected_date == "" ? "请选择日期" : TaskState.selected_date + " 的待办";
-            font-size: 18px;
-            font-weight: 700;
+            font-size: FluentTokens.font_size_500;
+            font-weight: FluentTokens.font_weight_bold;
             color: FluentTokens.neutral_fg_1;
         }
 
@@ -41,7 +41,7 @@ export component TaskPanel inherits Rectangle {
             Text {
                 x: 12px;
                 text: TaskState.status_text;
-                font-size: 12px;
+                font-size: FluentTokens.font_size_200;
                 color: FluentTokens.neutral_fg_2;
                 vertical-alignment: center;
             }
