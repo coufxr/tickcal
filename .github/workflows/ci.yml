@@ -1,0 +1,271 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─── 代码质量 ──────────────────────────────────────────────────
+  quality:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --all-features -- -D warnings
+
+  # ─── 跨平台测试 ──────────────────────────────────────────────
+  test:
+    name: Test (${{ matrix.os }})
+    needs: [ quality ]
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install Linux deps
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-dev libwebkit2gtk-4.1-dev \
+            libappindicator3-dev librsvg2-dev patchelf \
+            libxdo-dev libxkbcommon-dev
+
+      - name: Install macOS deps
+        if: matrix.os == 'macos-latest'
+        run: brew install cmake
+
+      - run: cargo test --all
+
+  # ─── 平台构建 ────────────────────────────────────────────────
+  build:
+    name: Build (${{ matrix.target }})
+    needs: [ quality ]
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            ext: ""
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            ext: ".exe"
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            ext: ""
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            ext: ""
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install Linux deps
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-dev libwebkit2gtk-4.1-dev \
+            libappindicator3-dev librsvg2-dev patchelf \
+            libxdo-dev libxkbcommon-dev
+
+      - name: Install macOS deps (ARM)
+        if: matrix.target == 'aarch64-apple-darwin'
+        run: brew install cmake
+
+      - run: cargo build --release --target ${{ matrix.target }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: calendar-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/calendar${{ matrix.ext }}
+          if-no-files-found: error
+
+  # ─── Release ──────────────────────────────────────────────────
+  release:
+    name: Release ${{ github.ref_name }}
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [ test, build ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: calendar-*
+          merge-multiple: true
+          path: artifacts/
+
+      - name: Package Linux
+        run: |
+          mkdir -p pkg/linux
+          cp artifacts/calendar-x86_64-unknown-linux-gnu pkg/linux/calendar
+          chmod +x pkg/linux/calendar
+          # AppStream 元数据
+          mkdir -p pkg/linux/share/metainfo
+          cat > pkg/linux/share/metainfo/calendar.appdata.xml << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <component type="desktop-application">
+            <id>calendar</id>
+            <name>Calendar</name>
+            <summary>Fluent 2 style calendar and todo app</summary>
+            <metadata_license>CC0-1.0</metadata_license>
+            <project_license>GPL-3.0-only</project_license>
+          </component>
+          EOF
+          # 桌面文件
+          mkdir -p pkg/linux/share/applications
+          cp linux/calendar.desktop pkg/linux/share/applications/
+          # 图标
+          mkdir -p pkg/linux/share/icons/hicolor/scalable/apps
+          cp ui/icons/app-icon.svg pkg/linux/share/icons/hicolor/scalable/apps/calendar.svg
+          # 打包
+          tar czf calendar-linux-x86_64.tar.gz -C pkg/linux .
+
+      - name: Install macOS packaging tools
+        run: brew install librsvg
+
+      - name: Generate .icns icon
+        run: |
+          mkdir -p AppIcon.iconset
+          for size in 16 32 128 256 512; do
+            rsvg-convert -w $size -h $size ui/icons/app-icon.svg \
+              -o "AppIcon.iconset/icon_${size}x${size}.png"
+            rsvg-convert -w $((size*2)) -h $((size*2)) ui/icons/app-icon.svg \
+              -o "AppIcon.iconset/icon_${size}x${size}@2x.png"
+          done
+          iconutil -c icns AppIcon.iconset
+
+      - name: Package macOS (x86_64)
+        if: hashFiles('artifacts/calendar-x86_64-apple-darwin') != ''
+        run: |
+          mkdir -p "Calendar.app/Contents/MacOS"
+          mkdir -p "Calendar.app/Contents/Resources"
+          cp artifacts/calendar-x86_64-apple-darwin "Calendar.app/Contents/MacOS/Calendar"
+          cp AppIcon.icns "Calendar.app/Contents/Resources/"
+          cat > "Calendar.app/Contents/Info.plist" << PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleExecutable</key>
+            <string>Calendar</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.calendar.app</string>
+            <key>CFBundleName</key>
+            <string>Calendar</string>
+            <key>CFBundleDisplayName</key>
+            <string>Calendar</string>
+            <key>CFBundleVersion</key>
+            <string>${{ github.ref_name }}</string>
+            <key>CFBundleShortVersionString</key>
+            <string>${{ github.ref_name }}</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>LSMinimumSystemVersion</key>
+            <string>10.15</string>
+            <key>NSHighResolutionCapable</key>
+            <true/>
+            <key>CFBundleIconFile</key>
+            <string>AppIcon</string>
+          </dict>
+          </plist>
+          PLIST
+          zip -r calendar-macos-x86_64.zip Calendar.app
+
+      - name: Package macOS (ARM64)
+        if: hashFiles('artifacts/calendar-aarch64-apple-darwin') != ''
+        run: |
+          mkdir -p "Calendar.app/Contents/MacOS"
+          mkdir -p "Calendar.app/Contents/Resources"
+          cp artifacts/calendar-aarch64-apple-darwin "Calendar.app/Contents/MacOS/Calendar"
+          cp AppIcon.icns "Calendar.app/Contents/Resources/"
+          cat > "Calendar.app/Contents/Info.plist" << PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleExecutable</key>
+            <string>Calendar</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.calendar.app</string>
+            <key>CFBundleName</key>
+            <string>Calendar</string>
+            <key>CFBundleDisplayName</key>
+            <string>Calendar</string>
+            <key>CFBundleVersion</key>
+            <string>${{ github.ref_name }}</string>
+            <key>CFBundleShortVersionString</key>
+            <string>${{ github.ref_name }}</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>LSMinimumSystemVersion</key>
+            <string>10.15</string>
+            <key>NSHighResolutionCapable</key>
+            <true/>
+            <key>CFBundleIconFile</key>
+            <string>AppIcon</string>
+          </dict>
+          </plist>
+          PLIST
+          zip -r calendar-macos-aarch64.zip Calendar.app
+
+      - name: Package Windows
+        run: |
+          mkdir -p pkg/win
+          cp artifacts/calendar-x86_64-pc-windows-msvc.exe pkg/win/Calendar.exe
+          cp windows/calendar.exe.manifest pkg/win/
+          cd pkg/win && zip -r ../../calendar-windows-x86_64.zip . && cd ../..
+
+      - name: Collect release files
+        id: collect
+        run: |
+          files="calendar-linux-x86_64.tar.gz"
+          if [ -f calendar-macos-x86_64.zip ]; then
+            files="$files calendar-macos-x86_64.zip"
+          fi
+          if [ -f calendar-macos-aarch64.zip ]; then
+            files="$files calendar-macos-aarch64.zip"
+          fi
+          files="$files calendar-windows-x86_64.zip"
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.collect.outputs.files }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

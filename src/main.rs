@@ -1,5 +1,8 @@
-// Release 模式下隐藏控制台窗口（Windows）
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+// Release 模式下各平台隐藏终端窗口
+#![cfg_attr(
+    all(not(debug_assertions), target_os = "windows"),
+    windows_subsystem = "windows"
+)]
 
 use std::cell::RefCell;
 use std::error::Error;
@@ -11,9 +14,8 @@ mod db;
 mod lifespan;
 mod model;
 mod models;
+mod platform;
 mod settings;
-
-mod util;
 
 use models::{CalendarModel, TaskModel};
 
@@ -22,6 +24,8 @@ slint::include_modules!();
 
 fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
+
+    platform::init();
 
     let ui = AppWindow::new()?;
     let app_settings = lifespan::on_start();

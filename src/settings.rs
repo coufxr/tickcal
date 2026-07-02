@@ -7,11 +7,11 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 
-use crate::util;
+use crate::platform;
 
 /// 获取设置文件路径
 fn settings_path() -> PathBuf {
-    util::config_dir().join("settings.toml")
+    platform::config_dir().join("settings.toml")
 }
 
 /// 应用设置结构体，与 TOML 文件字段一一对应

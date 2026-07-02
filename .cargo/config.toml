@@ -1,0 +1,50 @@
+[alias]
+release = "build --release"
+release-all = "build --release --workspace"
+
+release-win = "build --release --target x86_64-pc-windows-msvc"
+release-win-arm = "build --release --target aarch64-pc-windows-msvc"
+release-linux = "build --release --target x86_64-unknown-linux-gnu"
+release-linux-arm = "build --release --target aarch64-unknown-linux-gnu"
+release-mac = "build --release --target x86_64-apple-darwin"
+release-mac-arm = "build --release --target aarch64-apple-darwin"
+
+test-all = "test --workspace"
+
+check-all = "check --all-targets --all-features"
+clippy-all = "clippy --all-targets --all-features -- -D warnings"
+
+[profile.release]
+opt-level = 2
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+
+# ─── Windows ───────────────────────────────────────────────────────
+[target.x86_64-pc-windows-msvc]
+rustflags = [
+    "-C", "target-feature=+crt-static",
+    "-C", "link-args=/LTCG",
+]
+linker = "rust-lld"
+
+[target.aarch64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
+linker = "rust-lld"
+
+# ─── Linux ─────────────────────────────────────────────────────────
+[target.x86_64-unknown-linux-gnu]
+linker = "x86_64-linux-gnu-gcc"
+rustflags = ["-C", "link-args=-Wl,--as-needed"]
+
+[target.aarch64-unknown-linux-gnu]
+linker = "aarch64-linux-gnu-gcc"
+rustflags = ["-C", "link-args=-Wl,--as-needed"]
+
+# ─── macOS ─────────────────────────────────────────────────────────
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "link-args=-Wl,-dead_strip"]
+
+[target.aarch64-apple-darwin]
+rustflags = ["-C", "link-args=-Wl,-dead_strip"]

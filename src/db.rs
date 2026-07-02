@@ -8,7 +8,7 @@ use std::sync::Mutex;
 use rusqlite::{Connection, params};
 
 use crate::models::TaskItem;
-use crate::util;
+use crate::platform;
 
 /// 数据库连接包装
 pub struct Database {
@@ -117,7 +117,7 @@ impl Database {
 
 /// 获取数据库文件路径
 fn db_path() -> PathBuf {
-    util::config_dir().join("calendar.db")
+    platform::data_dir().join("calendar.db")
 }
 
 const CREATE_TABLE_SQL: &str = "

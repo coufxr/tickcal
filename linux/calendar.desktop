@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Calendar
+Comment=A Fluent 2 style calendar & todo app based on Slint + Rust
+Categories=Office;Calendar;Utility;
+Exec=calendar
+Icon=calendar
+Terminal=false
+StartupNotify=true

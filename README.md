@@ -1,50 +1,127 @@
 # Calendar
 
-基于 Slint + Rust 的日历待办应用，遵循 Fluent 2 设计风格。
+[![CI](https://github.com/USER/calendar/actions/workflows/ci.yml/badge.svg)](https://github.com/USER/calendar/actions/workflows/ci.yml)
+[![GPLv3 License](LICENSE)](LICENSE)
 
-## 项目结构
+**English** | [中文](README.zh-CN.md)
 
-```
-├── src/
-│   ├── main.rs              # 入口
-│   ├── app_logic/           # 应用逻辑层
-│   │   ├── mod.rs           # init() 聚合入口
-│   │   ├── calendar.rs      # 日历回调 + UI 刷新
-│   │   └── todo.rs          # Todo 回调 + UI 刷新
-│   ├── models/              # 数据模型层
-│   │   ├── calendar_model.rs
-│   │   └── todo_model.rs
-│   ├── services/            # 服务层
-│   │   └── store.rs         # JSON 持久化
-│   ├── model.rs             # 共享类型 (Ymd, DayCell, MonthView)
-│   ├── settings.rs          # 设置读写
-│   └── lifespan.rs          # 启动/关闭生命周期
-├── ui/
-│   ├── app-window.slint     # 根组件
-│   ├── globals/
-│   │   └── todo-state.slint # TodoState Global
-│   ├── components/          # 可复用组件
-│   │   ├── calendar-*.slint
-│   │   ├── todo-*.slint
-│   │   ├── menu-bar.slint
-│   │   └── settings-dialog.slint
-│   ├── types/               # 数据结构定义
-│   ├── theme/               # Fluent 2 设计令牌
-│   ├── config/              # 布局配置
-│   └── icons/               # SVG 图标
-└── Cargo.toml
+A Fluent 2 style calendar and todo app built with [Slint](https://slint.dev) + Rust.
+
+> Personal practice project. For reference and learning only.
+
+## Features
+
+- **Monthly calendar view** — Month switching and date selection
+- **Todo management** — Grouped by date, CRUD support
+- **System tray** — Background resident, quick access
+- **Cross-platform** — Windows / Linux / macOS
+- **Dark mode** — Adaptive Fluent 2 theme
+
+## Quick Start
+
+### Prerequisites
+
+- Rust toolchain (recommended via [rustup.rs](https://rustup.rs))
+
+**Linux extra dependencies:**
+
+```bash
+sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev \
+  libappindicator3-dev librsvg2-dev
 ```
 
-## 架构特点
-
-- **声明式 UI**：`.slint` 文件仅负责布局和数据绑定
-- **属性绑定**：响应式数据流，避免手动同步
-- **Global 单例**：`Fluent2Palette`、`CalendarSpacingConfig`、`CalendarSettings`、`TodoState`
-- **组件组合**：`in`/`out`/`in-out` 属性 + `callback` 事件流
-- **SVG 图标**：所有非文字图形使用 SVG + `colorize` 适配主题
-
-## 运行
+### Run
 
 ```bash
 cargo run
 ```
+
+## Build
+
+### Current platform
+
+```bash
+cargo build --release
+```
+
+### Cross-compilation
+
+```bash
+# Windows (MSVC)
+cargo build --release --target x86_64-pc-windows-msvc
+
+# Linux
+cargo build --release --target x86_64-unknown-linux-gnu
+
+# macOS Intel / Apple Silicon
+cargo build --release --target x86_64-apple-darwin
+cargo build --release --target aarch64-apple-darwin
+```
+
+Or use aliases defined in `.cargo/config.toml`:
+
+```bash
+cargo release-win
+cargo release-linux
+cargo release-mac
+cargo release-mac-arm
+```
+
+## Config Directory
+
+| Platform | Debug        | Release                                   |
+|----------|--------------|-------------------------------------------|
+| Windows  | Project root | `%APPDATA%\calendar\`                     |
+| Linux    | Project root | `~/.config/calendar/`                     |
+| macOS    | Project root | `~/Library/Application Support/calendar/` |
+
+## Project Structure
+
+```
+src/
+├── main.rs              # Entry
+├── platform.rs          # Platform abstraction
+├── db.rs                # SQLite database
+├── settings.rs          # TOML settings
+├── lifespan.rs          # Startup/shutdown lifecycle
+├── model.rs             # Shared types
+├── app_logic/           # ViewModel layer
+│   ├── mod.rs
+│   ├── calendar.rs
+│   └── task.rs
+├── models/              # Model layer
+│   ├── calendar_model.rs
+│   └── task_model.rs
+ui/
+├── app-window.slint     # Root component
+├── components/          # Reusable components
+│   ├── common/
+│   ├── calendar/
+│   └── task/
+├── dialogs/
+├── types/
+├── theme/               # Fluent 2 design tokens
+├── config/              # Layout config
+└── icons/               # SVG icons
+.cargo/config.toml       # Cross-platform build config
+.github/workflows/       # CI/CD
+```
+
+## Release
+
+Push a Git tag to trigger automatic build and release:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+GitHub Actions will generate platform packages and upload them to Release.
+
+## Contributing
+
+Issues and Pull Requests are welcome.
+
+## License
+
+[GNU General Public License v3.0](LICENSE)
