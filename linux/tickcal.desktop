@@ -1,9 +1,9 @@
 [Desktop Entry]
 Type=Application
-Name=Calendar
+Name=TickCal
 Comment=A Fluent 2 style calendar & todo app based on Slint + Rust
 Categories=Office;Calendar;Utility;
-Exec=calendar
-Icon=calendar
+Exec=tickcal
+Icon=tickcal
 Terminal=false
 StartupNotify=true

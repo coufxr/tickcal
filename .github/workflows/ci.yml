@@ -16,7 +16,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ─── 代码质量 ──────────────────────────────────────────────────
   quality:
     name: Lint & Format
     runs-on: ubuntu-latest
@@ -29,7 +28,6 @@ jobs:
       - run: cargo fmt --check
       - run: cargo clippy --all-targets --all-features -- -D warnings
 
-  # ─── 跨平台测试 ──────────────────────────────────────────────
   test:
     name: Test (${{ matrix.os }})
     needs: [ quality ]
@@ -59,7 +57,6 @@ jobs:
 
       - run: cargo test --all
 
-  # ─── 平台构建 ────────────────────────────────────────────────
   build:
     name: Build (${{ matrix.target }})
     needs: [ quality ]
@@ -105,11 +102,10 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: calendar-${{ matrix.target }}
-          path: target/${{ matrix.target }}/release/calendar${{ matrix.ext }}
+          name: tickcal-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/tickcal${{ matrix.ext }}
           if-no-files-found: error
 
-  # ─── Release ──────────────────────────────────────────────────
   release:
     name: Release ${{ github.ref_name }}
     if: startsWith(github.ref, 'refs/tags/v')
@@ -124,35 +120,31 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: calendar-*
+          pattern: tickcal-*
           merge-multiple: true
           path: artifacts/
 
       - name: Package Linux
         run: |
           mkdir -p pkg/linux
-          cp artifacts/calendar-x86_64-unknown-linux-gnu pkg/linux/calendar
-          chmod +x pkg/linux/calendar
-          # AppStream 元数据
+          cp artifacts/tickcal-x86_64-unknown-linux-gnu pkg/linux/tickcal
+          chmod +x pkg/linux/tickcal
           mkdir -p pkg/linux/share/metainfo
-          cat > pkg/linux/share/metainfo/calendar.appdata.xml << 'EOF'
+          cat > pkg/linux/share/metainfo/tickcal.appdata.xml << 'EOF'
           <?xml version="1.0" encoding="UTF-8"?>
           <component type="desktop-application">
-            <id>calendar</id>
-            <name>Calendar</name>
+            <id>tickcal</id>
+            <name>TickCal</name>
             <summary>Fluent 2 style calendar and todo app</summary>
             <metadata_license>CC0-1.0</metadata_license>
             <project_license>GPL-3.0-only</project_license>
           </component>
           EOF
-          # 桌面文件
           mkdir -p pkg/linux/share/applications
-          cp linux/calendar.desktop pkg/linux/share/applications/
-          # 图标
+          cp linux/tickcal.desktop pkg/linux/share/applications/
           mkdir -p pkg/linux/share/icons/hicolor/scalable/apps
-          cp ui/icons/app-icon.svg pkg/linux/share/icons/hicolor/scalable/apps/calendar.svg
-          # 打包
-          tar czf calendar-linux-x86_64.tar.gz -C pkg/linux .
+          cp ui/icons/app-icon.svg pkg/linux/share/icons/hicolor/scalable/apps/tickcal.svg
+          tar czf tickcal-linux-x86_64.tar.gz -C pkg/linux .
 
       - name: Install macOS packaging tools
         run: brew install librsvg
@@ -169,25 +161,25 @@ jobs:
           iconutil -c icns AppIcon.iconset
 
       - name: Package macOS (x86_64)
-        if: hashFiles('artifacts/calendar-x86_64-apple-darwin') != ''
+        if: hashFiles('artifacts/tickcal-x86_64-apple-darwin') != ''
         run: |
-          mkdir -p "Calendar.app/Contents/MacOS"
-          mkdir -p "Calendar.app/Contents/Resources"
-          cp artifacts/calendar-x86_64-apple-darwin "Calendar.app/Contents/MacOS/Calendar"
-          cp AppIcon.icns "Calendar.app/Contents/Resources/"
-          cat > "Calendar.app/Contents/Info.plist" << PLIST
+          mkdir -p "TickCal.app/Contents/MacOS"
+          mkdir -p "TickCal.app/Contents/Resources"
+          cp artifacts/tickcal-x86_64-apple-darwin "TickCal.app/Contents/MacOS/TickCal"
+          cp AppIcon.icns "TickCal.app/Contents/Resources/"
+          cat > "TickCal.app/Contents/Info.plist" << PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
             <key>CFBundleExecutable</key>
-            <string>Calendar</string>
+            <string>TickCal</string>
             <key>CFBundleIdentifier</key>
-            <string>com.calendar.app</string>
+            <string>com.tickcal.app</string>
             <key>CFBundleName</key>
-            <string>Calendar</string>
+            <string>TickCal</string>
             <key>CFBundleDisplayName</key>
-            <string>Calendar</string>
+            <string>TickCal</string>
             <key>CFBundleVersion</key>
             <string>${{ github.ref_name }}</string>
             <key>CFBundleShortVersionString</key>
@@ -203,28 +195,28 @@ jobs:
           </dict>
           </plist>
           PLIST
-          zip -r calendar-macos-x86_64.zip Calendar.app
+          zip -r tickcal-macos-x86_64.zip TickCal.app
 
       - name: Package macOS (ARM64)
-        if: hashFiles('artifacts/calendar-aarch64-apple-darwin') != ''
+        if: hashFiles('artifacts/tickcal-aarch64-apple-darwin') != ''
         run: |
-          mkdir -p "Calendar.app/Contents/MacOS"
-          mkdir -p "Calendar.app/Contents/Resources"
-          cp artifacts/calendar-aarch64-apple-darwin "Calendar.app/Contents/MacOS/Calendar"
-          cp AppIcon.icns "Calendar.app/Contents/Resources/"
-          cat > "Calendar.app/Contents/Info.plist" << PLIST
+          mkdir -p "TickCal.app/Contents/MacOS"
+          mkdir -p "TickCal.app/Contents/Resources"
+          cp artifacts/tickcal-aarch64-apple-darwin "TickCal.app/Contents/MacOS/TickCal"
+          cp AppIcon.icns "TickCal.app/Contents/Resources/"
+          cat > "TickCal.app/Contents/Info.plist" << PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
             <key>CFBundleExecutable</key>
-            <string>Calendar</string>
+            <string>TickCal</string>
             <key>CFBundleIdentifier</key>
-            <string>com.calendar.app</string>
+            <string>com.tickcal.app</string>
             <key>CFBundleName</key>
-            <string>Calendar</string>
+            <string>TickCal</string>
             <key>CFBundleDisplayName</key>
-            <string>Calendar</string>
+            <string>TickCal</string>
             <key>CFBundleVersion</key>
             <string>${{ github.ref_name }}</string>
             <key>CFBundleShortVersionString</key>
@@ -240,26 +232,26 @@ jobs:
           </dict>
           </plist>
           PLIST
-          zip -r calendar-macos-aarch64.zip Calendar.app
+          zip -r tickcal-macos-aarch64.zip TickCal.app
 
       - name: Package Windows
         run: |
           mkdir -p pkg/win
-          cp artifacts/calendar-x86_64-pc-windows-msvc.exe pkg/win/Calendar.exe
-          cp windows/calendar.exe.manifest pkg/win/
-          cd pkg/win && zip -r ../../calendar-windows-x86_64.zip . && cd ../..
+          cp artifacts/tickcal-x86_64-pc-windows-msvc.exe pkg/win/TickCal.exe
+          cp windows/tickcal.exe.manifest pkg/win/
+          cd pkg/win && zip -r ../../tickcal-windows-x86_64.zip . && cd ../..
 
       - name: Collect release files
         id: collect
         run: |
-          files="calendar-linux-x86_64.tar.gz"
-          if [ -f calendar-macos-x86_64.zip ]; then
-            files="$files calendar-macos-x86_64.zip"
+          files="tickcal-linux-x86_64.tar.gz"
+          if [ -f tickcal-macos-x86_64.zip ]; then
+            files="$files tickcal-macos-x86_64.zip"
           fi
-          if [ -f calendar-macos-aarch64.zip ]; then
-            files="$files calendar-macos-aarch64.zip"
+          if [ -f tickcal-macos-aarch64.zip ]; then
+            files="$files tickcal-macos-aarch64.zip"
           fi
-          files="$files calendar-windows-x86_64.zip"
+          files="$files tickcal-windows-x86_64.zip"
           echo "files=$files" >> "$GITHUB_OUTPUT"
 
       - name: Create release

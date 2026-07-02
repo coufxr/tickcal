@@ -1,6 +1,6 @@
 //! SQLite 数据库模块
 //!
-//! 负责 Task 数据的持久化存储。
+//! 负责 Task 数据的持久化存储和应用设置管理。
 
 use std::path::PathBuf;
 use std::sync::Mutex;
@@ -9,6 +9,7 @@ use rusqlite::{Connection, params};
 
 use crate::models::TaskItem;
 use crate::platform;
+use crate::settings::AppSettings;
 
 /// 数据库连接包装
 pub struct Database {
@@ -20,6 +21,8 @@ impl Database {
     pub(crate) fn new_in_memory() -> Self {
         let conn = Connection::open_in_memory().unwrap();
         conn.execute_batch(CREATE_TABLE_SQL).unwrap();
+        conn.execute("INSERT OR IGNORE INTO settings (id) VALUES (1)", [])
+            .unwrap();
         Database {
             conn: Mutex::new(conn),
         }
@@ -38,9 +41,48 @@ impl Database {
             .unwrap_or_else(|e| panic!("打开数据库失败 {}: {}", path.display(), e));
 
         conn.execute_batch(CREATE_TABLE_SQL).expect("创建表失败");
+        conn.execute("INSERT OR IGNORE INTO settings (id) VALUES (1)", [])
+            .expect("创建设置行失败");
 
         Self {
             conn: Mutex::new(conn),
+        }
+    }
+
+    /// 从数据库加载设置
+    pub fn load_settings(&self) -> AppSettings {
+        let conn = self.conn.lock().unwrap();
+        conn.query_row(
+            "SELECT dark_mode, accent_index, week_start_day, cell_size_index FROM settings WHERE id = 1",
+            [],
+            |row| {
+                Ok(AppSettings {
+                    dark_mode: row.get::<_, i32>(0)? != 0,
+                    accent_index: row.get(1)?,
+                    week_start_day: row.get(2)?,
+                    cell_size_index: row.get(3)?,
+                })
+            },
+        )
+        .unwrap_or_else(|e| {
+            log::error!("加载设置失败: {}", e);
+            AppSettings::default()
+        })
+    }
+
+    /// 将设置保存到数据库
+    pub fn save_settings(&self, settings: &AppSettings) {
+        let conn = self.conn.lock().unwrap();
+        if let Err(e) = conn.execute(
+            "UPDATE settings SET dark_mode = ?1, accent_index = ?2, week_start_day = ?3, cell_size_index = ?4 WHERE id = 1",
+            params![
+                settings.dark_mode as i32,
+                settings.accent_index,
+                settings.week_start_day,
+                settings.cell_size_index,
+            ],
+        ) {
+            log::error!("保存设置失败: {}", e);
         }
     }
 
@@ -117,7 +159,7 @@ impl Database {
 
 /// 获取数据库文件路径
 fn db_path() -> PathBuf {
-    platform::data_dir().join("calendar.db")
+    platform::data_dir().join(format!("{}.db", platform::app_name()))
 }
 
 const CREATE_TABLE_SQL: &str = "
@@ -127,7 +169,15 @@ const CREATE_TABLE_SQL: &str = "
         text TEXT NOT NULL,
         completed BOOLEAN NOT NULL DEFAULT 0
     );
-    CREATE INDEX IF NOT EXISTS idx_tasks_date ON tasks(date);";
+    CREATE INDEX IF NOT EXISTS idx_tasks_date ON tasks(date);
+
+    CREATE TABLE IF NOT EXISTS settings (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        dark_mode INTEGER NOT NULL DEFAULT 0,
+        accent_index INTEGER NOT NULL DEFAULT 0,
+        week_start_day INTEGER NOT NULL DEFAULT 0,
+        cell_size_index INTEGER NOT NULL DEFAULT 1
+    );";
 
 #[cfg(test)]
 mod tests {
@@ -218,5 +268,32 @@ mod tests {
         assert_eq!(id1, 1);
         assert_eq!(id2, 2);
         assert_eq!(id3, 3);
+    }
+
+    #[test]
+    fn test_default_settings() {
+        let db = Database::new_in_memory();
+        let s = db.load_settings();
+        assert!(!s.dark_mode);
+        assert_eq!(s.accent_index, 0);
+        assert_eq!(s.week_start_day, 0);
+        assert_eq!(s.cell_size_index, 1);
+    }
+
+    #[test]
+    fn test_save_and_load_settings() {
+        let db = Database::new_in_memory();
+        let s = AppSettings {
+            dark_mode: true,
+            accent_index: 5,
+            week_start_day: 1,
+            cell_size_index: 2,
+        };
+        db.save_settings(&s);
+        let loaded = db.load_settings();
+        assert!(loaded.dark_mode);
+        assert_eq!(loaded.accent_index, 5);
+        assert_eq!(loaded.week_start_day, 1);
+        assert_eq!(loaded.cell_size_index, 2);
     }
 }

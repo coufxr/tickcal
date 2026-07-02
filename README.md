@@ -1,6 +1,6 @@
-# Calendar
+# TickCal
 
-[![CI](https://github.com/USER/calendar/actions/workflows/ci.yml/badge.svg)](https://github.com/USER/calendar/actions/workflows/ci.yml)
+[![CI](https://github.com/USER/tickcal/actions/workflows/ci.yml/badge.svg)](https://github.com/USER/tickcal/actions/workflows/ci.yml)
 [![GPLv3 License](LICENSE)](LICENSE)
 
 **English** | [中文](README.zh-CN.md)
@@ -69,11 +69,11 @@ cargo release-mac-arm
 
 ## Config Directory
 
-| Platform | Debug        | Release                                   |
-|----------|--------------|-------------------------------------------|
-| Windows  | Project root | `%APPDATA%\calendar\`                     |
-| Linux    | Project root | `~/.config/calendar/`                     |
-| macOS    | Project root | `~/Library/Application Support/calendar/` |
+| Platform | Debug        | Release                           |
+|----------|--------------|-----------------------------------|
+| Windows  | Project root | `%APPDATA%\tickcal\`              |
+| Linux    | Project root | `~/.config/tickcal/`              |
+| macOS    | Project root | `~/Library/Application Support/tickcal/` |
 
 ## Project Structure
 

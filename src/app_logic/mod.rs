@@ -4,10 +4,12 @@
 
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use slint::{ComponentHandle, Weak};
 
 use crate::AppWindow;
+use crate::db::Database;
 use crate::models::{CalendarModel, TaskModel};
 
 pub mod calendar;
@@ -25,6 +27,7 @@ pub fn init(
     ui: &AppWindow,
     calendar_model: &Rc<RefCell<CalendarModel>>,
     task_model: &Rc<RefCell<TaskModel>>,
+    db: &Arc<Database>,
 ) {
     // 刷新 UI
     calendar::refresh_calendar_ui(ui, &calendar_model.borrow());
@@ -39,9 +42,10 @@ pub fn init(
 
     // 菜单栏回调
     let weak = ui.as_weak();
+    let db = db.clone();
     ui.on_quit(move || {
         if let Some(ui) = weak.upgrade() {
-            crate::lifespan::save_settings(&ui);
+            crate::lifespan::save_settings(&ui, &db);
             slint::quit_event_loop().ok();
         }
     });

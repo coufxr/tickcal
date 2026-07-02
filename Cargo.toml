@@ -1,5 +1,5 @@
 [package]
-name = "calendar"
+name = "tickcal"
 version = "0.1.0"
 edition = "2024"
 license = "GPL-3.0-only"
@@ -10,10 +10,15 @@ dirs = "6"
 env_logger = "0.11"
 log = "0.4"
 rusqlite = { version = "0.31", features = ["bundled"] }
-serde = { version = "1", features = ["derive"] }
 slint = "1.17.0"
-toml = "0.8"
 tyme4rs = "1.4.2"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = "symbols"
+panic = "abort"
 
 [build-dependencies]
 slint-build = "1.17.0"

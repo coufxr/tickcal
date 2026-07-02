@@ -1,6 +1,6 @@
-# Calendar
+# TickCal
 
-[![CI](https://github.com/USER/calendar/actions/workflows/ci.yml/badge.svg)](https://github.com/USER/calendar/actions/workflows/ci.yml)
+[![CI](https://github.com/USER/tickcal/actions/workflows/ci.yml/badge.svg)](https://github.com/USER/tickcal/actions/workflows/ci.yml)
 [![GPLv3 License](LICENSE)](LICENSE)
 
 [English](README.md) | **中文**
@@ -69,11 +69,11 @@ cargo release-mac-arm
 
 ## 配置目录
 
-| 平台      | Debug 模式 | Release 模式                                |
-|---------|----------|-------------------------------------------|
-| Windows | 项目根目录    | `%APPDATA%\calendar\`                     |
-| Linux   | 项目根目录    | `~/.config/calendar/`                     |
-| macOS   | 项目根目录    | `~/Library/Application Support/calendar/` |
+| 平台    | Debug 模式 | Release 模式                      |
+|---------|------------|-----------------------------------|
+| Windows | 项目根目录   | `%APPDATA%\tickcal\`              |
+| Linux   | 项目根目录   | `~/.config/tickcal/`              |
+| macOS   | 项目根目录   | `~/Library/Application Support/tickcal/` |
 
 ## 项目结构
 

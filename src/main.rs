@@ -28,7 +28,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     platform::init();
 
     let ui = AppWindow::new()?;
-    let app_settings = lifespan::on_start();
+
+    // 先初始化数据库，再从中加载设置
+    let db = Arc::new(db::Database::new());
+    let app_settings = lifespan::on_start(&db);
 
     ui.invoke_apply_settings(
         app_settings.dark_mode,
@@ -37,12 +40,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         app_settings.cell_size_index,
     );
 
-    // 初始化数据库
-    let db = Arc::new(db::Database::new());
-
     // 创建共享 Model
     let calendar_model = Rc::new(RefCell::new(CalendarModel::new()));
-    let task_model = Rc::new(RefCell::new(TaskModel::new(db)));
+    let task_model = Rc::new(RefCell::new(TaskModel::new(db.clone())));
 
     // 初始化日历模型：应用设置 + 同步 task 日期
     calendar_model.borrow_mut().apply_settings(app_settings);
@@ -72,18 +72,19 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     {
         let ui_weak = ui.as_weak();
+        let db = db.clone();
         tray.on_quit(move || {
             if let Some(w) = ui_weak.upgrade() {
-                lifespan::save_settings(&w);
+                lifespan::save_settings(&w, &db);
             }
             slint::quit_event_loop().ok();
         });
     }
 
     // 初始化应用逻辑
-    app_logic::init(&ui, &calendar_model, &task_model);
+    app_logic::init(&ui, &calendar_model, &task_model, &db);
 
-    lifespan::on_close(&ui);
+    lifespan::on_close(&ui, db);
     ui.run()?;
 
     Ok(())

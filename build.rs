@@ -9,11 +9,13 @@ fn main() {
 
     match target_os.as_str() {
         "windows" => {
-            let manifest_path = "windows/calendar.exe.manifest";
-            // 始终 watch，支持创建后触发重建
+            let manifest_path = format!("windows/{}.exe.manifest", env!("CARGO_PKG_NAME"));
             println!("cargo::rerun-if-changed={manifest_path}");
-            if std::path::Path::new(manifest_path).exists() && is_release {
-                println!("cargo::rustc-link-arg-bin=calendar=/MANIFEST:EMBED");
+            if std::path::Path::new(&manifest_path).exists() && is_release {
+                println!(
+                    "cargo::rustc-link-arg-bin={}=/MANIFEST:EMBED",
+                    env!("CARGO_PKG_NAME")
+                );
             }
         }
         "macos" => {

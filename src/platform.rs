@@ -5,28 +5,9 @@
 
 use std::path::PathBuf;
 
-/// 获取应用名称（用于路径、菜单等）
-///
-/// 返回小写以保持与旧版本 `util::config_dir()` 路径兼容。
+/// 获取应用名称（用于路径、菜单等），自动从 Cargo.toml 的 `name` 字段读取
 pub fn app_name() -> &'static str {
-    "calendar"
-}
-
-/// 获取应用配置目录
-///
-/// | 平台 | Debug | Release |
-/// |------|-------|---------|
-/// | Windows | 项目根 | `%APPDATA%\calendar\` |
-/// | Linux | 项目根 | `~/.config/calendar/` |
-/// | macOS | 项目根 | `~/Library/Application Support/calendar/` |
-pub fn config_dir() -> PathBuf {
-    if cfg!(debug_assertions) {
-        PathBuf::from(".")
-    } else {
-        dirs::config_dir()
-            .unwrap_or_else(|| PathBuf::from("."))
-            .join(app_name())
-    }
+    env!("CARGO_PKG_NAME")
 }
 
 /// 获取应用数据目录（数据库文件）
